@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.0.0",
+  "entries": [
+    {
+      "id": "ev.zip-meta-map.build-screenshot.v1",
+      "type": "image",
+      "format": "image/png",
+      "path": "evidence/zip-meta-map-dashboard.png",
+      "sha256": "298c48d7f745fee6a9fe3ad9b3ec2dbe70be9361811ab7d958bc6b61fd554cdb",
+      "bytes": 64959,
+      "provenance": {
+        "generator": "scripts/gen-zmm-screenshot.mjs",
+        "sourceCommit": "2c3184d",
+        "notes": "Generated from real zip-meta-map build index. Shows 73 files, 18 modules, 5 plans, 14 flagged, role distribution, LLM plan budgets."
+      }
+    },
+    {
+      "id": "ev.zip-meta-map.test-suite.v1",
+      "type": "link",
+      "format": "text/html",
+      "url": "https://github.com/mcp-tool-shop-org/zip-meta-map/actions",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "bytes": 0,
+      "provenance": {
+        "generator": "github-actions-ci",
+        "sourceCommit": "5be4b38",
+        "notes": "246 passing tests as of v0.2.1. Link to CI runs; hash is zero because this is a live external resource."
+      }
+    },
+    {
+      "id": "ev.zip-meta-map.ci-step-summary.v1",
+      "type": "link",
+      "format": "text/html",
+      "url": "https://github.com/mcp-tool-shop-org/zip-meta-map/blob/main/.github/workflows/ci.yml",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "bytes": 0,
+      "provenance": {
+        "generator": "github-actions-ci",
+        "sourceCommit": "5be4b38",
+        "notes": "CI workflow uses diff --exit-code for gating. Link to workflow definition; hash is zero because this is a live external resource."
+      }
+    },
+    {
+      "id": "ev.zip-meta-map.deterministic-test.v1",
+      "type": "link",
+      "format": "text/html",
+      "url": "https://github.com/mcp-tool-shop-org/zip-meta-map/blob/main/tests/test_determinism.py",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "bytes": 0,
+      "provenance": {
+        "generator": "human",
+        "sourceCommit": "5be4b38",
+        "notes": "Test file proving deterministic output. Link to source; hash is zero because this is a live external resource."
+      }
+    }
+  ]
+}

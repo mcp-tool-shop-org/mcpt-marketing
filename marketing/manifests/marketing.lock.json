@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-02-15T12:30:00.000Z",
+  "generator": "manual",
+  "files": [
+    {
+      "path": "marketing/schema/marketing.schema.json",
+      "sha256": "975c3929d45570f1fb6fa4af7911f4abab6513fc3a4597eefdf1a2d25a656159",
+      "bytes": 9881
+    },
+    {
+      "path": "marketing/data/marketing.index.json",
+      "sha256": "85b7a170ecd701196c2fe66fefe36624644c106cdd8ad89cc31f95fd0b185024",
+      "bytes": 289
+    },
+    {
+      "path": "marketing/data/audiences/ci-maintainers.json",
+      "sha256": "55521aa57f741bef8689a36bde35f8faf611cc620422aedac159b3bde56364d3",
+      "bytes": 569
+    },
+    {
+      "path": "marketing/data/audiences/llm-toolchain-devs.json",
+      "sha256": "5939bbaaaa7625b089380b91eaedc218d8af19437f2d02162b68e91a754eea4c",
+      "bytes": 556
+    },
+    {
+      "path": "marketing/data/campaigns/zmm-launch.json",
+      "sha256": "9818fb121380f2395bdddd7b8e34233ef71cf923339dc5dd2f4e6e7679a05331",
+      "bytes": 1026
+    },
+    {
+      "path": "marketing/data/tools/zip-meta-map.json",
+      "sha256": "11d0ffd15020c8d058ce06ec26c4e3165b2f744b146bcd46b21839bcd4d6cace",
+      "bytes": 5673
+    },
+    {
+      "path": "marketing/manifests/evidence.manifest.json",
+      "sha256": "4f00f47e797bbed860d9ab7c08dd526e75269c9a918f15693a41b7aad81dbd77",
+      "bytes": 2287
+    }
+  ]
+}
