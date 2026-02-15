@@ -53,6 +53,141 @@
       "enum": ["web", "readme", "hn", "x", "linkedin", "newsletter", "presskit"]
     },
 
+    "pressContactMethod": {
+      "type": "string",
+      "enum": ["email", "x-dm", "linkedin", "github-issue", "form"]
+    },
+
+    "pressContact": {
+      "type": "object",
+      "required": ["method", "value"],
+      "properties": {
+        "method": { "$ref": "#/$defs/pressContactMethod" },
+        "value": {
+          "type": "string",
+          "description": "Contact value (URL, email, handle)."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label for this contact method."
+        },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+
+    "pressQuote": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Approved quote text."
+        },
+        "attribution": {
+          "type": "string",
+          "description": "Who said this."
+        },
+        "role": {
+          "type": "string",
+          "description": "Role or title of the person quoted."
+        },
+        "claimRefs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/claimId" },
+          "description": "Claims this quote supports."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "pressComparable": {
+      "type": "object",
+      "required": ["target", "distinction"],
+      "properties": {
+        "target": {
+          "type": "string",
+          "description": "What this tool is similar to."
+        },
+        "distinction": {
+          "type": "string",
+          "description": "How it differs (honest, not dismissive)."
+        },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+
+    "pressPartnerOffer": {
+      "type": "object",
+      "required": ["type", "description"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["demo", "co-announcement", "integration", "early-access", "case-study"]
+        },
+        "description": {
+          "type": "string",
+          "description": "What you are offering."
+        },
+        "constraints": {
+          "type": "string",
+          "description": "Any limitations or conditions."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "pressBlock": {
+      "type": "object",
+      "description": "Optional press/partner data for a tool. Enables press pages, outreach packs, and partner bundles.",
+      "properties": {
+        "boilerplate": {
+          "type": "object",
+          "properties": {
+            "projectDescription": {
+              "type": "string",
+              "description": "Extended project description for press use."
+            },
+            "founderBio": {
+              "type": "string",
+              "description": "Team or founder bio."
+            },
+            "preferredNouns": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Preferred terms for the tool (e.g. tool, CLI, indexer)."
+            },
+            "forbiddenPhrases": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Phrases to never use in press/marketing (e.g. AI-powered, revolutionary)."
+            }
+          },
+          "additionalProperties": false
+        },
+        "contacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/pressContact" }
+        },
+        "quotes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/pressQuote" },
+          "maxItems": 6
+        },
+        "comparables": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/pressComparable" }
+        },
+        "partnerOffers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/pressPartnerOffer" }
+        }
+      },
+      "additionalProperties": false
+    },
+
     "constraints": {
       "type": "object",
       "description": "Soft advisory constraints for a channel or context.",
@@ -197,7 +332,8 @@
           "type": "array",
           "items": { "$ref": "#/$defs/message" },
           "minItems": 1
-        }
+        },
+        "press": { "$ref": "#/$defs/pressBlock" }
       },
       "additionalProperties": false
     },

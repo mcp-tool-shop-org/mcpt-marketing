@@ -143,7 +143,23 @@ for (const { ref } of index.tools) {
     }
   }
 
-  console.log(`  OK: ${tool.id} (${tool.claims.length} claims, ${tool.messages.length} messages)`);
+  // Check press quote claimRefs resolve to tool's claims
+  if (tool.press?.quotes) {
+    for (const quote of tool.press.quotes) {
+      if (quote.claimRefs) {
+        for (const claimRef of quote.claimRefs) {
+          if (!claimIds.has(claimRef)) {
+            fail(
+              `${ref}: press quote references claim ${claimRef} which is not in this tool's claims`,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  const pressInfo = tool.press ? `, press: ${tool.press.quotes?.length || 0} quotes` : "";
+  console.log(`  OK: ${tool.id} (${tool.claims.length} claims, ${tool.messages.length} messages${pressInfo})`);
 }
 
 // Load campaigns

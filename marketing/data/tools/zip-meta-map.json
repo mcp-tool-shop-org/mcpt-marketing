@@ -128,5 +128,52 @@
       ],
       "constraints": { "maxChars": 700 }
     }
-  ]
+  ],
+  "press": {
+    "boilerplate": {
+      "projectDescription": "zip-meta-map is a Python CLI that generates deterministic, JSON Schema-validated indexes of repositories and ZIP archives. It produces structured context for LLM agents with configurable token budgets and CI gating via diff --exit-code. The output is plain JSON consumable by any tool — no vendor lock-in, no runtime dependency.",
+      "founderBio": "Built by the mcp-tool-shop team — a small group focused on deterministic developer tooling for AI agent infrastructure.",
+      "preferredNouns": ["tool", "CLI", "indexer"],
+      "forbiddenPhrases": ["AI-powered", "revolutionary", "game-changer", "magic", "next-generation"]
+    },
+    "contacts": [
+      {
+        "method": "github-issue",
+        "value": "https://github.com/mcp-tool-shop-org/zip-meta-map/issues",
+        "label": "GitHub Issues (preferred)"
+      }
+    ],
+    "quotes": [
+      {
+        "text": "Same repo, same output, every time. That is the entire design contract.",
+        "attribution": "mcp-tool-shop team",
+        "claimRefs": ["claim.zip-meta-map.deterministic-output"]
+      },
+      {
+        "text": "We wrote 246 tests not because we like writing tests, but because determinism demands proof.",
+        "attribution": "mcp-tool-shop team",
+        "claimRefs": ["claim.zip-meta-map.246-tests"]
+      }
+    ],
+    "comparables": [
+      {
+        "target": "tree / find + jq pipelines",
+        "distinction": "zip-meta-map produces schema-validated JSON with LLM token budgets and CI-grade diffing, not ad-hoc text output."
+      },
+      {
+        "target": "Sourcegraph / code search",
+        "distinction": "Complementary, not competitive. zip-meta-map provides structural metadata; code search provides content retrieval."
+      }
+    ],
+    "partnerOffers": [
+      {
+        "type": "integration",
+        "description": "We will work with LLM tool authors to integrate zip-meta-map indexes as a context source."
+      },
+      {
+        "type": "early-access",
+        "description": "Pre-release access to new index formats and plan structures before public release."
+      }
+    ]
+  }
 }
