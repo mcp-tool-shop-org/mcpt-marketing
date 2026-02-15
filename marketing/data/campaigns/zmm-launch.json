@@ -3,35 +3,24 @@
   "id": "camp.zip-meta-map.launch",
   "name": "zip-meta-map Launch",
   "toolRef": "tool.zip-meta-map",
-  "audienceRefs": [
-    "aud.ci-maintainers",
-    "aud.llm-toolchain-devs"
-  ],
+  "audienceRefs": ["aud.ci-maintainers", "aud.llm-toolchain-devs"],
   "phases": [
     {
       "name": "Soft launch",
       "channels": ["readme", "web"],
-      "messageRefs": [
-        "msg.zip-meta-map.readme-snippet",
-        "msg.zip-meta-map.web-blurb"
-      ],
+      "messageRefs": ["msg.zip-meta-map.readme-snippet", "msg.zip-meta-map.web-blurb"],
       "notes": "Get the tool page and README polished before any external promotion."
     },
     {
       "name": "Community launch",
       "channels": ["hn", "x"],
-      "messageRefs": [
-        "msg.zip-meta-map.hn-post",
-        "msg.zip-meta-map.x-post"
-      ],
+      "messageRefs": ["msg.zip-meta-map.hn-post", "msg.zip-meta-map.x-post"],
       "notes": "HN Show + X post. Time for weekday morning US-East."
     },
     {
       "name": "Professional outreach",
       "channels": ["linkedin"],
-      "messageRefs": [
-        "msg.zip-meta-map.linkedin-post"
-      ],
+      "messageRefs": ["msg.zip-meta-map.linkedin-post"],
       "notes": "LinkedIn post targeting engineering leaders and DevOps."
     }
   ]

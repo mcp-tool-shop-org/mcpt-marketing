@@ -87,7 +87,8 @@ const evidenceManifest = JSON.parse(evidenceText);
 const evidenceIds = new Set();
 for (const entry of evidenceManifest.entries) {
   if (!validateEvidence(entry)) {
-    for (const e of validateEvidence.errors) fail(`evidence ${entry.id}: ${e.instancePath} ${e.message}`);
+    for (const e of validateEvidence.errors)
+      fail(`evidence ${entry.id}: ${e.instancePath} ${e.message}`);
   }
   checkUniqueId(entry.id, "evidence.manifest.json");
   evidenceIds.add(entry.id);
@@ -115,7 +116,9 @@ for (const { ref } of index.tools) {
     if (claim.evidenceRefs) {
       for (const evRef of claim.evidenceRefs) {
         if (!evidenceIds.has(evRef)) {
-          fail(`${ref}: claim ${claim.id} references evidence ${evRef} which is not in the manifest`);
+          fail(
+            `${ref}: claim ${claim.id} references evidence ${evRef} which is not in the manifest`,
+          );
         }
       }
     }
@@ -126,7 +129,9 @@ for (const { ref } of index.tools) {
     checkUniqueId(msg.id, ref);
     for (const claimRef of msg.claimRefs) {
       if (!claimIds.has(claimRef)) {
-        fail(`${ref}: message ${msg.id} references claim ${claimRef} which is not in this tool's claims`);
+        fail(
+          `${ref}: message ${msg.id} references claim ${claimRef} which is not in this tool's claims`,
+        );
       }
     }
   }
@@ -170,7 +175,9 @@ for (const { ref } of index.campaigns) {
       if (phase.messageRefs) {
         for (const msgRef of phase.messageRefs) {
           if (!toolMsgIds.has(msgRef)) {
-            fail(`${ref}: phase "${phase.name}" references message ${msgRef} which is not in tool ${campaign.toolRef}`);
+            fail(
+              `${ref}: phase "${phase.name}" references message ${msgRef} which is not in tool ${campaign.toolRef}`,
+            );
           }
         }
       }

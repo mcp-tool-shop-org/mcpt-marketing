@@ -145,7 +145,16 @@
 
     "tool": {
       "type": "object",
-      "required": ["schemaVersion", "id", "name", "positioning", "audienceRefs", "claims", "antiClaims", "messages"],
+      "required": [
+        "schemaVersion",
+        "id",
+        "name",
+        "positioning",
+        "audienceRefs",
+        "claims",
+        "antiClaims",
+        "messages"
+      ],
       "properties": {
         "schemaVersion": { "$ref": "#/$defs/schemaVersion" },
         "id": { "$ref": "#/$defs/toolId" },
@@ -261,10 +270,7 @@
         }
       },
       "additionalProperties": false,
-      "anyOf": [
-        { "required": ["path"] },
-        { "required": ["url"] }
-      ]
+      "anyOf": [{ "required": ["path"] }, { "required": ["url"] }]
     },
 
     "campaignPhase": {

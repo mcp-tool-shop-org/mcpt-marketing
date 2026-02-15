@@ -18,11 +18,11 @@ These rules are non-negotiable. CI enforces them.
 
 Every claim has a `status`:
 
-| Status | Meaning |
-|--------|---------|
-| `proven` | Backed by at least one `evidenceRef` |
+| Status         | Meaning                                  |
+| -------------- | ---------------------------------------- |
+| `proven`       | Backed by at least one `evidenceRef`     |
 | `aspirational` | Believed true, evidence not yet captured |
-| `deprecated` | No longer valid — kept for audit trail |
+| `deprecated`   | No longer valid — kept for audit trail   |
 
 **Proven claims require evidence.** If a claim is `proven`, it must reference at least one entry in the evidence manifest. CI rejects proven claims with zero evidence.
 

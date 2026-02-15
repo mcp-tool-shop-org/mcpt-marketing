@@ -11,10 +11,7 @@
       "JSON Schema-validated output with 246 tests backing correctness"
     ]
   },
-  "audienceRefs": [
-    "aud.ci-maintainers",
-    "aud.llm-toolchain-devs"
-  ],
+  "audienceRefs": ["aud.ci-maintainers", "aud.llm-toolchain-devs"],
   "claims": [
     {
       "id": "claim.zip-meta-map.deterministic-output",
