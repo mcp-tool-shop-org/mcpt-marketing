@@ -1,0 +1,22 @@
+{
+  "name": "mcpt-marketing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "validate": "node marketing/scripts/validate.mjs",
+    "lock": "node marketing/scripts/gen-lock.mjs",
+    "lock:check": "node marketing/scripts/gen-lock.mjs --check",
+    "hash": "node marketing/scripts/hash-file.mjs",
+    "fmt": "prettier --write .",
+    "fmt:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "ajv": "^8.17.0",
+    "ajv-formats": "^3.0.0",
+    "prettier": "^3.4.0"
+  }
+}
