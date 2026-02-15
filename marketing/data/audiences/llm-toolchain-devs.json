@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "aud.llm-toolchain-devs",
+  "name": "LLM Toolchain Developers",
+  "description": "Developers building AI agents and LLM-powered tools that need structured repo context under token budgets.",
+  "painPoints": [
+    "LLM agents waste tokens on irrelevant files when given raw directory listings",
+    "No standard format for repo structure that LLMs can consume efficiently",
+    "Token budget overruns when context windows are limited",
+    "Manual curation of repo maps doesn't scale across projects"
+  ]
+}

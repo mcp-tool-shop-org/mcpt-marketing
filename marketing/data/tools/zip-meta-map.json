@@ -1,0 +1,135 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "tool.zip-meta-map",
+  "name": "zip-meta-map",
+  "positioning": {
+    "oneLiner": "Make repos and ZIPs self-describing for LLMs with CI-grade diffs.",
+    "valueProps": [
+      "Deterministic index: same repo produces the same output, every time",
+      "Token-budgeted LLM plans: structured context that fits in context windows",
+      "CI gating with diff --exit-code: fail builds when metadata drifts",
+      "JSON Schema-validated output with 246 tests backing correctness"
+    ]
+  },
+  "audienceRefs": [
+    "aud.ci-maintainers",
+    "aud.llm-toolchain-devs"
+  ],
+  "claims": [
+    {
+      "id": "claim.zip-meta-map.deterministic-output",
+      "status": "proven",
+      "statement": "Given the same repository state, zip-meta-map produces byte-identical index output.",
+      "evidenceRefs": ["ev.zip-meta-map.deterministic-test.v1"]
+    },
+    {
+      "id": "claim.zip-meta-map.246-tests",
+      "status": "proven",
+      "statement": "The test suite contains 246 passing tests covering CLI, schema validation, and diff behavior.",
+      "evidenceRefs": ["ev.zip-meta-map.test-suite.v1"]
+    },
+    {
+      "id": "claim.zip-meta-map.ci-gating",
+      "status": "proven",
+      "statement": "zip-meta-map diff --exit-code returns non-zero when metadata drifts, suitable for CI gating.",
+      "evidenceRefs": ["ev.zip-meta-map.ci-step-summary.v1"]
+    },
+    {
+      "id": "claim.zip-meta-map.token-budgets",
+      "status": "proven",
+      "statement": "LLM plans respect configurable token budgets, producing structured context that fits within specified limits.",
+      "evidenceRefs": ["ev.zip-meta-map.build-screenshot.v1"]
+    },
+    {
+      "id": "claim.zip-meta-map.schema-validated",
+      "status": "proven",
+      "statement": "All output conforms to a published JSON Schema, validated in CI on every commit.",
+      "evidenceRefs": ["ev.zip-meta-map.test-suite.v1"]
+    },
+    {
+      "id": "claim.zip-meta-map.sub-second-builds",
+      "status": "aspirational",
+      "statement": "Typical repo builds complete in under one second on commodity hardware.",
+      "notes": "Anecdotally true but not yet benchmarked with reproducible methodology."
+    }
+  ],
+  "antiClaims": [
+    {
+      "statement": "Does not replace code search or embeddings — it complements them with structural metadata."
+    },
+    {
+      "statement": "Does not perform runtime vulnerability scanning — heuristic flagging is advisory, not CVE-grade."
+    },
+    {
+      "statement": "Does not require or assume any specific LLM provider — output is plain JSON consumable by any tool."
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg.zip-meta-map.web-blurb",
+      "channel": "web",
+      "tone": "pragmatic",
+      "text": "zip-meta-map makes repos self-describing for LLMs. Deterministic builds, token-budgeted plans, and CI gating with 246 tests backing every claim.",
+      "claimRefs": [
+        "claim.zip-meta-map.deterministic-output",
+        "claim.zip-meta-map.token-budgets",
+        "claim.zip-meta-map.ci-gating",
+        "claim.zip-meta-map.246-tests"
+      ],
+      "constraints": { "maxChars": 280 }
+    },
+    {
+      "id": "msg.zip-meta-map.readme-snippet",
+      "channel": "readme",
+      "tone": "technical",
+      "text": "Build a self-describing index of any repo or ZIP. JSON Schema-validated output, configurable LLM token budgets, and diff --exit-code for CI gating. 246 tests. Deterministic.",
+      "claimRefs": [
+        "claim.zip-meta-map.schema-validated",
+        "claim.zip-meta-map.token-budgets",
+        "claim.zip-meta-map.ci-gating",
+        "claim.zip-meta-map.246-tests",
+        "claim.zip-meta-map.deterministic-output"
+      ]
+    },
+    {
+      "id": "msg.zip-meta-map.hn-post",
+      "channel": "hn",
+      "tone": "technical",
+      "text": "Show HN: zip-meta-map — deterministic repo indexes for LLM agents. Same repo = same output, diffable in CI, token budgets for context windows. 246 tests, JSON Schema-validated, pip install zip-meta-map.",
+      "claimRefs": [
+        "claim.zip-meta-map.deterministic-output",
+        "claim.zip-meta-map.ci-gating",
+        "claim.zip-meta-map.token-budgets",
+        "claim.zip-meta-map.246-tests",
+        "claim.zip-meta-map.schema-validated"
+      ],
+      "constraints": { "maxChars": 300, "notes": "HN title should be separate and under 80 chars." }
+    },
+    {
+      "id": "msg.zip-meta-map.x-post",
+      "channel": "x",
+      "tone": "pragmatic",
+      "text": "zip-meta-map: make any repo self-describing for LLMs. Deterministic output, token budgets, CI gating. 246 tests. pip install zip-meta-map",
+      "claimRefs": [
+        "claim.zip-meta-map.deterministic-output",
+        "claim.zip-meta-map.token-budgets",
+        "claim.zip-meta-map.ci-gating",
+        "claim.zip-meta-map.246-tests"
+      ],
+      "constraints": { "maxChars": 280 }
+    },
+    {
+      "id": "msg.zip-meta-map.linkedin-post",
+      "channel": "linkedin",
+      "tone": "executive",
+      "text": "We built zip-meta-map to solve a specific problem: LLM agents need structured repo context, but directory listings waste tokens and drift silently. Our approach is deterministic indexes with CI gating — same repo, same output, every time. 246 tests enforce it.",
+      "claimRefs": [
+        "claim.zip-meta-map.deterministic-output",
+        "claim.zip-meta-map.token-budgets",
+        "claim.zip-meta-map.ci-gating",
+        "claim.zip-meta-map.246-tests"
+      ],
+      "constraints": { "maxChars": 700 }
+    }
+  ]
+}

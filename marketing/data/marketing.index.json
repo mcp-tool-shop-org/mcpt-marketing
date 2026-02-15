@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "tools": [
+    { "ref": "tools/zip-meta-map.json" }
+  ],
+  "audiences": [
+    { "ref": "audiences/ci-maintainers.json" },
+    { "ref": "audiences/llm-toolchain-devs.json" }
+  ],
+  "campaigns": [
+    { "ref": "campaigns/zmm-launch.json" }
+  ]
+}
