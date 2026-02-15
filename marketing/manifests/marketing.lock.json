@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-02-15T21:12:01.885Z",
+  "generatedAt": "2026-02-15T21:13:15.858Z",
   "generator": "gen-lock.mjs",
   "files": [
     {
@@ -30,8 +30,8 @@
     },
     {
       "path": "marketing/manifests/evidence.manifest.json",
-      "sha256": "31012157847f80e1fb4e60a90b2786a9250001f1178166669f6de01d37e60cbd",
-      "bytes": 2230
+      "sha256": "1c3aa6c8d2bbc57af3b0cb7d17d608a75cbba9833bae9ac92a73bde7903ad273",
+      "bytes": 2290
     },
     {
       "path": "marketing/schema/marketing.schema.json",

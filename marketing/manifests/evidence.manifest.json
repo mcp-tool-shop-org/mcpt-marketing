@@ -44,13 +44,13 @@
       "id": "ev.zip-meta-map.deterministic-test.v1",
       "type": "link",
       "format": "text/html",
-      "url": "https://github.com/mcp-tool-shop-org/zip-meta-map/blob/main/tests/test_determinism.py",
+      "url": "https://github.com/mcp-tool-shop-org/zip-meta-map/blob/main/tests/test_report.py",
       "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "bytes": 0,
       "provenance": {
         "generator": "human",
         "sourceCommit": "5be4b38",
-        "notes": "Test file proving deterministic output. Link to source; hash is zero because this is a live external resource."
+        "notes": "Contains test_report_deterministic() proving same index = identical output. Also test_diff.py:test_identical_indices_no_changes and test_chunker.py for deterministic chunking."
       }
     }
   ]
