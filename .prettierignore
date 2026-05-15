@@ -1,2 +1,7 @@
 node_modules/
 marketing/manifests/marketing.lock.json
+coverage/
+dist/
+package-lock.json
+*.min.js
+*.min.css

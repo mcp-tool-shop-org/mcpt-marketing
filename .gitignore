@@ -4,3 +4,13 @@ dist/
 Thumbs.db
 *.swp
 *.swo
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+*.iml
+npm-debug.log*
+.npm/
+coverage/
+desktop.ini

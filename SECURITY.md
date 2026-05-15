@@ -19,9 +19,13 @@ mcpt-marketing is a **MarketIR infrastructure** project — deterministic market
 
 ## Reporting a Vulnerability
 
-Email: **64996768+mcp-tool-shop@users.noreply.github.com**
+Use GitHub's **private vulnerability advisory** feature for this repo:
 
-Include:
+**[github.com/mcp-tool-shop/mcpt-marketing/security/advisories/new](https://github.com/mcp-tool-shop/mcpt-marketing/security/advisories/new)**
+
+This is the supported intake channel — the address listed in earlier versions of this file was a GitHub no-reply forwarder that does not accept inbound mail.
+
+When opening an advisory, include:
 
 - Description of the vulnerability
 - Steps to reproduce

@@ -4,6 +4,13 @@
 
 **Tags:** `[all]` every repo · `[npm]` `[pypi]` `[vsix]` `[desktop]` `[container]` published artifacts · `[mcp]` MCP servers · `[cli]` CLI tools
 
+**Last reviewed:** 2026-05-15 (post dogfood swarm wave 2).
+**Audit cadence:** re-score on every minor release, or quarterly — whichever comes first.
+
+**Repo state:** GitHub repository is **PUBLIC** (`mcp-tool-shop/mcpt-marketing`). The npm package manifest sets `"private": true` — i.e., the package is not published to the npm registry, but the source repo is open.
+
+**Notation legend:** `[x]` = done · `[ ]` = not done · `[x]*` = partially complete (see row note for what's deferred) · `SKIP:` = not applicable for this repo type.
+
 ---
 
 ## A. Security Baseline
@@ -22,7 +29,7 @@
 
 ## B. Error Handling
 
-- [x] `[all]` Errors follow the Structured Error Shape: `code`, `message`, `hint`, `cause?`, `retryable?` (2026-02-27)
+- [x]\* `[all]` Errors use friendly try/catch envelopes (basic shape) — full Structured Error Shape (`code`, `message`, `hint`, `cause?`, `retryable?`) is **planned for v1.1** (2026-05-15)
 - [ ] `[cli]` SKIP: not a CLI tool — validation scripts
 - [ ] `[cli]` SKIP: not a CLI tool
 - [ ] `[mcp]` SKIP: not an MCP server
@@ -42,13 +49,13 @@
 
 ## D. Shipping Hygiene
 
-- [x] `[all]` `verify` script exists (validate + lock:check) (2026-02-27)
+- [ ] `[all]` `verify` umbrella script (validate + lock:check + tests) — **planned for v1.1.** Today the equivalent is the explicit `npm run validate && npm run lock:check && npm test` chain that CI runs.
 - [x] `[all]` Version in manifest matches git tag (2026-02-27)
-- [x] `[all]` Dependency scanning runs in CI (ecosystem-appropriate) (2026-02-27)
-- [x] `[all]` Automated dependency update mechanism exists (2026-02-27)
-- [ ] `[npm]` SKIP: private repo — not published to npm
-- [ ] `[npm]` SKIP: private repo — not published to npm
-- [ ] `[npm]` SKIP: private repo — not published to npm
+- [x] `[all]` Dependency scanning runs in CI — CodeQL workflow added in dogfood swarm wave 2 (2026-05-15)
+- [x] `[all]` Automated dependency update mechanism exists — Dependabot config added in dogfood swarm wave 2 (2026-05-15)
+- [ ] `[npm]` SKIP: package marked `"private": true` in package.json — source repo is GitHub-public, package is not published to npm
+- [ ] `[npm]` SKIP: package marked `"private": true` in package.json — source repo is GitHub-public, package is not published to npm
+- [ ] `[npm]` SKIP: package marked `"private": true` in package.json — source repo is GitHub-public, package is not published to npm
 - [ ] `[vsix]` SKIP: not a VS Code extension
 - [ ] `[desktop]` SKIP: not a desktop application
 

@@ -1,42 +1,41 @@
 {
-  "schemaVersion": "1.0.0",
-  "generatedAt": "2026-02-28T00:27:58.073Z",
-  "generator": "gen-lock.mjs",
   "files": [
     {
+      "bytes": 557,
       "path": "marketing/data/audiences/ci-maintainers.json",
-      "sha256": "23c72f87076ad2e24aef2946d1822ca6a57cde35df0138ddb29b8eda559e433c",
-      "bytes": 557
+      "sha256": "23c72f87076ad2e24aef2946d1822ca6a57cde35df0138ddb29b8eda559e433c"
     },
     {
+      "bytes": 544,
       "path": "marketing/data/audiences/llm-toolchain-devs.json",
-      "sha256": "554cade261636daf117dd171360d358fe01c8256da50eb7121b8b8e963cc5273",
-      "bytes": 544
+      "sha256": "554cade261636daf117dd171360d358fe01c8256da50eb7121b8b8e963cc5273"
     },
     {
+      "bytes": 912,
       "path": "marketing/data/campaigns/zmm-launch.json",
-      "sha256": "34d1a30c4c707d41c9148b1f4cd61015ebbff5517a75bbfe8cc67c2876fdab95",
-      "bytes": 912
+      "sha256": "34d1a30c4c707d41c9148b1f4cd61015ebbff5517a75bbfe8cc67c2876fdab95"
     },
     {
+      "bytes": 260,
       "path": "marketing/data/marketing.index.json",
-      "sha256": "9137efb54803bab72c54f07bd3844e45d14ba5907e8533ae6ab1ee61d035630e",
-      "bytes": 260
+      "sha256": "9137efb54803bab72c54f07bd3844e45d14ba5907e8533ae6ab1ee61d035630e"
     },
     {
+      "bytes": 9453,
       "path": "marketing/data/tools/zip-meta-map.json",
-      "sha256": "f2c4dafce8253a4afaa9b9e10bdd2b674769fccf8b27631a376da7de4f8228d1",
-      "bytes": 8326
+      "sha256": "5386261f32c7d3bc22cf178482706dc9ba7ae5013fe2c9a833b8547440ee6050"
     },
     {
+      "bytes": 48,
       "path": "marketing/manifests/evidence.manifest.json",
-      "sha256": "1c3aa6c8d2bbc57af3b0cb7d17d608a75cbba9833bae9ac92a73bde7903ad273",
-      "bytes": 2290
+      "sha256": "68cc21608704da4e28ff5a6a1ad76b4104868b91d711c1212be4af48aa9684f9"
     },
     {
+      "bytes": 19350,
       "path": "marketing/schema/marketing.schema.json",
-      "sha256": "0f0832a0616c3e9df39a0dbb3aee9a07a5c8804a5cd10ea409f867900245a894",
-      "bytes": 15564
+      "sha256": "d3bb6ce0ea7bbfe2ab6e2457a0c9fd4f2f0990342afc0deadb9aa2be49e47120"
     }
-  ]
+  ],
+  "generator": "gen-lock.mjs",
+  "schemaVersion": "1.0.0"
 }

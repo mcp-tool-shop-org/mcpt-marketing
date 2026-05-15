@@ -8,40 +8,40 @@
       "Deterministic index: same repo produces the same output, every time",
       "Token-budgeted LLM plans: structured context that fits in context windows",
       "CI gating with diff --exit-code: fail builds when metadata drifts",
-      "JSON Schema-validated output with 246 tests backing correctness"
+      "JSON Schema-validated output with a passing test suite backing correctness"
     ]
   },
   "audienceRefs": ["aud.ci-maintainers", "aud.llm-toolchain-devs"],
   "claims": [
     {
       "id": "claim.zip-meta-map.deterministic-output",
-      "status": "proven",
+      "status": "aspirational",
       "statement": "Given the same repository state, zip-meta-map produces byte-identical index output.",
-      "evidenceRefs": ["ev.zip-meta-map.deterministic-test.v1"]
+      "notes": "Awaiting upstream zip-meta-map repo public release; downgraded from proven 2026-05-15. Backing evidence (test_report_deterministic, test_diff identical-indices, deterministic chunker tests) lives in the upstream repo and will be re-linked once public."
     },
     {
-      "id": "claim.zip-meta-map.246-tests",
-      "status": "proven",
-      "statement": "The test suite contains 246 passing tests covering CLI, schema validation, and diff behavior.",
-      "evidenceRefs": ["ev.zip-meta-map.test-suite.v1"]
+      "id": "claim.zip-meta-map.test-suite",
+      "status": "aspirational",
+      "statement": "Every release ships with a passing test suite that exercises CLI, schema, and diff behavior.",
+      "notes": "Awaiting upstream zip-meta-map repo public release; downgraded from proven 2026-05-15. Restated as a stable property (no hardcoded count) per F-CONTRACT-007. Backing evidence is the upstream CI run history."
     },
     {
       "id": "claim.zip-meta-map.ci-gating",
-      "status": "proven",
+      "status": "aspirational",
       "statement": "zip-meta-map diff --exit-code returns non-zero when metadata drifts, suitable for CI gating.",
-      "evidenceRefs": ["ev.zip-meta-map.ci-step-summary.v1"]
+      "notes": "Awaiting upstream zip-meta-map repo public release; downgraded from proven 2026-05-15. Backing evidence is the upstream CI workflow definition (uses diff --exit-code for gating)."
     },
     {
       "id": "claim.zip-meta-map.token-budgets",
-      "status": "proven",
+      "status": "aspirational",
       "statement": "LLM plans respect configurable token budgets, producing structured context that fits within specified limits.",
-      "evidenceRefs": ["ev.zip-meta-map.build-screenshot.v1"]
+      "notes": "Algorithmic claim; awaiting falsifiable test-report evidence (token-budget property test). Downgraded from proven 2026-05-15."
     },
     {
       "id": "claim.zip-meta-map.schema-validated",
-      "status": "proven",
+      "status": "aspirational",
       "statement": "All output conforms to a published JSON Schema, validated in CI on every commit.",
-      "evidenceRefs": ["ev.zip-meta-map.test-suite.v1"]
+      "notes": "Awaiting upstream zip-meta-map repo public release; downgraded from proven 2026-05-15. Backing evidence is the upstream CI test suite that runs schema validation on every commit."
     },
     {
       "id": "claim.zip-meta-map.sub-second-builds",
@@ -66,12 +66,12 @@
       "id": "msg.zip-meta-map.web-blurb",
       "channel": "web",
       "tone": "pragmatic",
-      "text": "zip-meta-map makes repos self-describing for LLMs. Deterministic builds, token-budgeted plans, and CI gating with 246 tests backing every claim.",
+      "text": "Pre-launch preview: zip-meta-map aims to make repos self-describing for LLMs — designed for deterministic builds, token-budgeted plans, and CI gating. Tool repository pending public release.",
       "claimRefs": [
         "claim.zip-meta-map.deterministic-output",
         "claim.zip-meta-map.token-budgets",
         "claim.zip-meta-map.ci-gating",
-        "claim.zip-meta-map.246-tests"
+        "claim.zip-meta-map.test-suite"
       ],
       "constraints": { "maxChars": 280 }
     },
@@ -79,12 +79,12 @@
       "id": "msg.zip-meta-map.readme-snippet",
       "channel": "readme",
       "tone": "technical",
-      "text": "Build a self-describing index of any repo or ZIP. JSON Schema-validated output, configurable LLM token budgets, and diff --exit-code for CI gating. 246 tests. Deterministic.",
+      "text": "Design intent (pre-launch): build a self-describing index of any repo or ZIP, with JSON Schema-validated output, configurable LLM token budgets, and diff --exit-code for CI gating. Tool will ship with a passing test suite enforcing determinism. Upstream tool repository pending public release.",
       "claimRefs": [
         "claim.zip-meta-map.schema-validated",
         "claim.zip-meta-map.token-budgets",
         "claim.zip-meta-map.ci-gating",
-        "claim.zip-meta-map.246-tests",
+        "claim.zip-meta-map.test-suite",
         "claim.zip-meta-map.deterministic-output"
       ]
     },
@@ -92,12 +92,12 @@
       "id": "msg.zip-meta-map.hn-post",
       "channel": "hn",
       "tone": "technical",
-      "text": "Show HN: zip-meta-map — deterministic repo indexes for LLM agents. Same repo = same output, diffable in CI, token budgets for context windows. 246 tests, JSON Schema-validated, pip install zip-meta-map.",
+      "text": "Show HN preview (pre-launch): zip-meta-map — designed to produce deterministic repo indexes for LLM agents. Goals: same repo = same output, diffable in CI, token budgets for context windows, JSON Schema-validated, test-suite-backed. Upstream repo pending public release.",
       "claimRefs": [
         "claim.zip-meta-map.deterministic-output",
         "claim.zip-meta-map.ci-gating",
         "claim.zip-meta-map.token-budgets",
-        "claim.zip-meta-map.246-tests",
+        "claim.zip-meta-map.test-suite",
         "claim.zip-meta-map.schema-validated"
       ],
       "constraints": { "maxChars": 300, "notes": "HN title should be separate and under 80 chars." }
@@ -106,12 +106,12 @@
       "id": "msg.zip-meta-map.x-post",
       "channel": "x",
       "tone": "pragmatic",
-      "text": "zip-meta-map: make any repo self-describing for LLMs. Deterministic output, token budgets, CI gating. 246 tests. pip install zip-meta-map",
+      "text": "zip-meta-map (pre-launch): aiming to make any repo self-describing for LLMs. Design goals: deterministic output, token budgets, CI gating, test-suite-backed. Upstream pending public release.",
       "claimRefs": [
         "claim.zip-meta-map.deterministic-output",
         "claim.zip-meta-map.token-budgets",
         "claim.zip-meta-map.ci-gating",
-        "claim.zip-meta-map.246-tests"
+        "claim.zip-meta-map.test-suite"
       ],
       "constraints": { "maxChars": 280 }
     },
@@ -119,19 +119,19 @@
       "id": "msg.zip-meta-map.linkedin-post",
       "channel": "linkedin",
       "tone": "executive",
-      "text": "We built zip-meta-map to solve a specific problem: LLM agents need structured repo context, but directory listings waste tokens and drift silently. Our approach is deterministic indexes with CI gating — same repo, same output, every time. 246 tests enforce it.",
+      "text": "We are building zip-meta-map to solve a specific problem: LLM agents need structured repo context, but directory listings waste tokens and drift silently. The intended approach is deterministic indexes with CI gating — same repo, same output, every time, with a passing test suite enforcing the contract. Currently in pre-launch validation; upstream tool repository pending public release.",
       "claimRefs": [
         "claim.zip-meta-map.deterministic-output",
         "claim.zip-meta-map.token-budgets",
         "claim.zip-meta-map.ci-gating",
-        "claim.zip-meta-map.246-tests"
+        "claim.zip-meta-map.test-suite"
       ],
       "constraints": { "maxChars": 700 }
     }
   ],
   "press": {
     "boilerplate": {
-      "projectDescription": "zip-meta-map is a Python CLI that generates deterministic, JSON Schema-validated indexes of repositories and ZIP archives. It produces structured context for LLM agents with configurable token budgets and CI gating via diff --exit-code. The output is plain JSON consumable by any tool — no vendor lock-in, no runtime dependency.",
+      "projectDescription": "Project goal (pre-launch): zip-meta-map is being built as a Python CLI for generating deterministic, JSON Schema-validated indexes of repositories and ZIP archives. The intended design produces structured context for LLM agents with configurable token budgets and CI gating via diff --exit-code, with output as plain JSON consumable by any tool — no vendor lock-in, no runtime dependency. The design contract — determinism: the same repo state producing byte-identical output, every time — is intended to be enforced by the upstream test suite, which will become publicly verifiable once the upstream tool repository is released. Until then, every property in this MarketIR record is marked aspirational and not yet evidence-backed.",
       "founderBio": "Built by the mcp-tool-shop team — a small group focused on deterministic developer tooling for AI agent infrastructure.",
       "preferredNouns": ["tool", "CLI", "indexer"],
       "forbiddenPhrases": [
@@ -145,22 +145,11 @@
     "contacts": [
       {
         "method": "github-issue",
-        "value": "https://github.com/mcp-tool-shop-org/zip-meta-map/issues",
-        "label": "GitHub Issues (preferred)"
+        "value": "https://github.com/mcp-tool-shop/mcpt-marketing/issues",
+        "label": "GitHub Issues (mcpt-marketing repo — preferred until upstream zip-meta-map repo is public)"
       }
     ],
-    "quotes": [
-      {
-        "text": "Same repo, same output, every time. That is the entire design contract.",
-        "attribution": "mcp-tool-shop team",
-        "claimRefs": ["claim.zip-meta-map.deterministic-output"]
-      },
-      {
-        "text": "We wrote 246 tests not because we like writing tests, but because determinism demands proof.",
-        "attribution": "mcp-tool-shop team",
-        "claimRefs": ["claim.zip-meta-map.246-tests"]
-      }
-    ],
+    "quotes": [],
     "comparables": [
       {
         "target": "tree / find + jq pipelines",
@@ -195,8 +184,7 @@
     "languages": ["Python", "TypeScript", "JavaScript"],
     "exclusions": ["mcp-tool-shop-org", "mcp-tool-shop"],
     "seedRepos": [
-      { "owner": "aider-chat", "repo": "aider", "notes": "LLM coding agent, needs repo context" },
-      { "owner": "paul-gauthier", "repo": "aider", "notes": "Alternate org for aider" }
+      { "owner": "Aider-AI", "repo": "aider", "notes": "Canonical aider repo as of 2025 rename" }
     ]
   }
 }

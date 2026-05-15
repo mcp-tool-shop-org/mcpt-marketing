@@ -49,6 +49,7 @@ marketing/
     evidence.manifest.json   # Evidence registry with sha256 + provenance
     marketing.lock.json      # Lockfile pinning all files by hash
   scripts/          # validate, hash, gen-lock
+test/               # node:test suites — version, gen-lock, validate, hash-file, _paths (46 tests)
 ```
 
 ### Authored vs generated
@@ -111,13 +112,16 @@ All JSON uses sorted keys, stable array ordering, and trailing newlines. This pr
 npm install
 
 # Format check (Prettier)
-npm run format:check
+npm run fmt:check
 
 # Schema + invariant validation
 npm run validate
 
 # Lockfile drift check (CI mode)
 npm run lock:check
+
+# Tests (version + structure invariants)
+npm test
 ```
 
 **Typical development loop:**
@@ -126,7 +130,8 @@ npm run lock:check
 2. Add evidence entries to `marketing/manifests/evidence.manifest.json` (and artifacts under `marketing/evidence/` if applicable)
 3. Regenerate the lockfile: `node marketing/scripts/gen-lock.mjs`
 4. Validate: `npm run validate`
-5. Format: `npm run format:check` (fix with `npm run format`)
+5. Format: `npm run fmt:check` (fix with `npm run fmt`)
+6. Run tests: `npm test`
 
 ---
 
@@ -162,9 +167,26 @@ The quality bar is simple and non-negotiable:
 
 ---
 
-## Security
+## Testing
 
-No secrets, private URLs, API keys, or customer identifiers belong in this repo. Evidence means public artifacts — screenshots, CI links, test results — not internal logs or credentials. If something can't be shown publicly, it's not evidence.
+```bash
+npm test
+```
+
+Runs 46 tests across five suites under `test/` via the Node built-in test runner (no external test framework):
+
+- **`test/version.test.mjs`** — 5 version-consistency tests
+  - `package.json` version is canonical semver (X.Y.Z\[-pre]\[+build])
+  - `package.json` MAJOR matches the latest `## [X.Y.Z]` heading in `CHANGELOG.md`
+  - `CHANGELOG.md` contains a section heading for the current version (not just a link reference)
+  - `LICENSE` begins with "MIT License"
+  - `marketing/` exists and contains `schema/`, `data/`, `manifests/` subdirectories
+- **`test/gen-lock.test.mjs`** — 7 determinism + lockfile tests (lockfile drift detection, byte-stable serialization, ref-traversal hardening)
+- **`test/validate.test.mjs`** — 10 schema + invariant tests (negative-path coverage for proven-without-evidence, orphan files, hash mismatch, forbidden phrases, message length, etc.)
+- **`test/hash-file.test.mjs`** — 4 hashing-utility tests (known-vector, empty file, POSIX path normalization, usage error)
+- **`test/_paths.test.mjs`** — 20 path-traversal-guard tests (`assertSafeRef` and `assertSafePath` rejection + acceptance paths)
+
+CI runs `npm test` on every push and pull request.
 
 ---
 
@@ -174,7 +196,11 @@ MarketIR changes are versioned via `schemaVersion` in the schema and data files.
 
 ---
 
-## Security & Data Scope
+## Security
+
+No secrets, private URLs, API keys, or customer identifiers belong in this repo. Evidence means public artifacts — screenshots, CI links, test results — not internal logs or credentials. If something can't be shown publicly, it's not evidence.
+
+### Data scope
 
 | Aspect               | Detail                                                                      |
 | -------------------- | --------------------------------------------------------------------------- |
@@ -186,18 +212,26 @@ MarketIR changes are versioned via `schemaVersion` in the schema and data files.
 
 See [SECURITY.md](SECURITY.md) for vulnerability reporting.
 
+---
+
 ## Scorecard
 
 | Category            | Score     |
 | ------------------- | --------- |
-| A. Security         | 10        |
-| B. Error Handling   | 10        |
-| C. Operator Docs    | 10        |
-| D. Shipping Hygiene | 10        |
-| E. Identity (soft)  | 10        |
-| **Overall**         | **50/50** |
+| A. Security         | 9         |
+| B. Error Handling   | 7         |
+| C. Operator Docs    | 9         |
+| D. Shipping Hygiene | 9         |
+| E. Identity (soft)  | 8         |
+| **Overall**         | **42/50** |
 
-> Full audit: [SHIP_GATE.md](SHIP_GATE.md) · [SCORECARD.md](SCORECARD.md)
+> **Score: 42/50** (revised down from 50/50 after honest re-audit; see [SCORECARD.md](SCORECARD.md#why-scores-were-revised-down) for methodology).
+>
+> Last reviewed: 2026-05-15. Full audit: [SHIP_GATE.md](SHIP_GATE.md) · [SCORECARD.md](SCORECARD.md)
+>
+> **Audit cadence:** re-score on every minor release, or quarterly — whichever comes first.
+
+---
 
 ## License
 
