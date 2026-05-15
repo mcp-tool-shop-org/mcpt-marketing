@@ -76,34 +76,44 @@ describe("hash-file.mjs — known-vector + path-normalization + empty-file", () 
     assert.equal(out.bytes, 0, `expected 0 bytes; got ${out.bytes}`);
   });
 
-  it("normalizes Windows backslashes to POSIX forward slashes in the emitted path", () => {
-    // Create a nested file so the relative path actually contains a separator.
-    const dir = makeTempDir("posix-norm");
-    const subdir = join(dir, "sub");
-    mkdirSync(subdir, { recursive: true });
-    const filePath = join(subdir, "f.txt");
-    writeFileSync(filePath, "x", "utf-8");
+  it(
+    "normalizes Windows backslashes to POSIX forward slashes in the emitted path",
+    {
+      skip:
+        process.platform !== "win32"
+          ? "Windows-only — backslash path resolution is OS-level"
+          : false,
+    },
+    () => {
+      // Create a nested file so the relative path actually contains a separator.
+      const dir = makeTempDir("posix-norm");
+      const subdir = join(dir, "sub");
+      mkdirSync(subdir, { recursive: true });
+      const filePath = join(subdir, "f.txt");
+      writeFileSync(filePath, "x", "utf-8");
 
-    // Build a path with explicit backslashes regardless of platform — this is
-    // the surface the F-SCRIPTS-010 fix protects. The normalization must run
-    // even on POSIX so the test is meaningful cross-platform.
-    const backslashPath = filePath.replace(/[/\\]/g, "\\");
-    const result = runHash(backslashPath);
-    assert.equal(
-      result.status,
-      0,
-      `hash-file should exit 0; got ${result.status}.\nstderr: ${result.stderr}`,
-    );
-    const out = JSON.parse(result.stdout);
-    assert.ok(
-      !out.path.includes("\\"),
-      `emitted path must not contain backslashes (POSIX-normalized); got ${JSON.stringify(out.path)}`,
-    );
-    assert.ok(
-      out.path.includes("/"),
-      `emitted path should use forward slashes for nested files; got ${JSON.stringify(out.path)}`,
-    );
-  });
+      // On Windows, both backslash and forward-slash paths resolve to the same
+      // file. We pass the backslash form to assert that the F-SCRIPTS-010 fix
+      // POSIX-normalizes the emitted `path` field. POSIX hosts cannot run this
+      // test because Linux/macOS treat backslashes as literal filename chars.
+      const backslashPath = filePath.replace(/[/\\]/g, "\\");
+      const result = runHash(backslashPath);
+      assert.equal(
+        result.status,
+        0,
+        `hash-file should exit 0; got ${result.status}.\nstderr: ${result.stderr}`,
+      );
+      const out = JSON.parse(result.stdout);
+      assert.ok(
+        !out.path.includes("\\"),
+        `emitted path must not contain backslashes (POSIX-normalized); got ${JSON.stringify(out.path)}`,
+      );
+      assert.ok(
+        out.path.includes("/"),
+        `emitted path should use forward slashes for nested files; got ${JSON.stringify(out.path)}`,
+      );
+    },
+  );
 
   it("exits non-zero with a usage message when called with no argument", () => {
     const result = runHash();
