@@ -4,8 +4,7 @@
 
 **Tags:** `[all]` every repo · `[npm]` `[pypi]` `[vsix]` `[desktop]` `[container]` published artifacts · `[mcp]` MCP servers · `[cli]` CLI tools
 
-**Last reviewed:** 2026-05-15 (post dogfood swarm wave 2).
-**Audit cadence:** re-score on every minor release, or quarterly — whichever comes first.
+**Last reviewed + audit cadence:** see [SCORECARD.md](SCORECARD.md) (canonical source — keeps the date in one place).
 
 **Repo state:** GitHub repository is **PUBLIC** (`mcp-tool-shop/mcpt-marketing`). The npm package manifest sets `"private": true` — i.e., the package is not published to the npm registry, but the source repo is open.
 

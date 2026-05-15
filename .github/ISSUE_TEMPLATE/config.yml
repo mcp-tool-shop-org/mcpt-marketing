@@ -1,0 +1,13 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/mcp-tool-shop/mcpt-marketing/discussions
+    about: |
+      Open-ended questions ("how would I…", "should this…", "what about…")
+      belong in Discussions. The issue tracker is for bugs and concrete
+      feature requests.
+  - name: Security report
+    url: https://github.com/mcp-tool-shop/mcpt-marketing/security/advisories/new
+    about: |
+      Report a security vulnerability privately via GitHub Security
+      Advisories. Do not open a public issue for security reports.

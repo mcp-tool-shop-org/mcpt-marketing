@@ -49,7 +49,7 @@ marketing/
     evidence.manifest.json   # Evidence registry with sha256 + provenance
     marketing.lock.json      # Lockfile pinning all files by hash
   scripts/          # validate, hash, gen-lock
-test/               # node:test suites — version, gen-lock, validate, hash-file, _paths (46 tests)
+test/               # node:test suites (see Testing section for the per-suite breakdown)
 ```
 
 ### Authored vs generated
@@ -135,7 +135,40 @@ npm test
 
 ---
 
-## How it's consumed (site bridge)
+## Scripts reference
+
+One-line examples for every script in `package.json`:
+
+| Command                                     | What it does                                                                                                                                                                 |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run validate`                          | Validate the entire dataset against the schema and structural invariants. No args. Exits non-zero on any failure.                                                            |
+| `npm run lock`                              | Regenerate `marketing/manifests/marketing.lock.json` in place from current data. No args.                                                                                    |
+| `npm run lock:check`                        | Regenerate the lockfile in CI mode and fail if it differs from what's committed. No args. Used by CI.                                                                        |
+| `npm test`                                  | Run the full test suite via the Node built-in test runner.                                                                                                                   |
+| `npm run fmt:check`                         | Verify Prettier formatting across the repo. Exits non-zero if anything would be reformatted.                                                                                 |
+| `npm run fmt`                               | Apply Prettier formatting in place.                                                                                                                                          |
+| `npm run hash -- marketing/evidence/<file>` | Print the sha256 + bytes of one file. Use this when registering a new evidence artifact in `evidence.manifest.json`. The `--` is required so npm forwards the path argument. |
+
+---
+
+## Troubleshooting
+
+Common failure modes and the one-line fix for each:
+
+| Error                                              | What it means                                                                      | Fix                                                                                                 |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `Lockfile is out of date` (or `lock:check failed`) | The committed lockfile no longer matches the current data files.                   | Run `npm run lock` and commit the result.                                                           |
+| `Schema validation failed at <path>`               | A data file does not conform to the JSON Schema.                                   | Read the error path; fix the field. The schema lives in `marketing/schema/marketing.schema.json`.   |
+| `evidence file not found at <path>`                | The lockfile references a file that doesn't exist on disk (or has a typo'd path).  | Check `marketing/manifests/evidence.manifest.json` — every `path` must exist relative to repo root. |
+| `hash mismatch for <file>`                         | The file on disk no longer matches the sha256 recorded in the lockfile/manifest.   | Re-hash with `npm run hash -- <file>` and update the manifest if the change was intentional.        |
+| `proven claim has no evidenceRef`                  | A claim is marked `status: "proven"` but lists zero evidence references.           | Either add an `evidenceRef` pointing to a manifest entry, or downgrade the claim to `aspirational`. |
+| `forbidden phrase: <X>`                            | A message contains a phrase the validator rejects (see SCORECARD on banned terms). | Rephrase or remove. The forbidden-phrase list is in the validator script.                           |
+| `orphan file`                                      | A file under `marketing/data/**` is not reachable from `marketing.index.json`.     | Add it to the index, or delete it.                                                                  |
+| `message exceeds max length`                       | A channel message is longer than the per-channel cap declared in the schema.       | Trim the message, or move long-form copy out of the channel-message field.                          |
+
+---
+
+## Consuming MarketIR (site bridge)
 
 The public site treats this repo as a **read-only upstream**. No runtime fetches — everything is resolved at build time.
 
@@ -152,6 +185,34 @@ mcptoolshop.com
 ```
 
 The site's `fetch-marketir.mjs` script downloads files referenced in the lockfile, verifies every hash, and writes a local snapshot. If any hash mismatches, the build aborts. This keeps marketing traceable and reproducible.
+
+### Consumer contract
+
+For consumers vendoring MarketIR (the public site, future generators, anyone else), the stable surface is:
+
+- **Stable for consumers**:
+  - `marketing/data/**` — tools, audiences, campaigns, and the root index (`marketing.index.json`)
+  - `marketing/manifests/marketing.lock.json` — the lockfile (canonical inventory + sha256 per file)
+  - `marketing/manifests/evidence.manifest.json` — evidence registry with sha256 + bytes + provenance
+  - `marketing/schema/**` — JSON Schema definitions (used to validate ingested data)
+- **Internal — do not depend on**:
+  - `marketing/scripts/**` — generation/validation scripts (may be renamed or restructured without notice)
+  - `test/**`, `node_modules/`, top-level config (`.prettierrc`, etc.)
+
+### How to fetch
+
+Consumers should resolve files through the lockfile rather than hard-coding paths. A typical recipe:
+
+1. Fetch `marketing/manifests/marketing.lock.json` from a known commit (tag or branch).
+2. Read `schemaVersion` from the lockfile and refuse to ingest if the major version differs from what your consumer expects (see Versioning below).
+3. For each entry in the lockfile, fetch the referenced file (e.g., from `https://raw.githubusercontent.com/mcp-tool-shop/mcpt-marketing/<tag>/<path>`) and verify its sha256 matches the lockfile entry.
+4. Abort the build on any hash mismatch — the data is no longer self-consistent.
+
+The site bridge (`fetch-marketir.mjs`) is the reference implementation of this recipe.
+
+### Aliases and deprecation
+
+IDs are never renamed; they are deprecated. When a tool, claim, or message is renamed in spirit, the old ID is kept with `status: "deprecated"` and the audit trail intact. A future schema revision may add an explicit `aliases` field for cleaner consumer migration; until then, consumers should treat any `deprecated` entity as terminal — keep displaying it if your consumer chooses, but do not silently rewrite IDs.
 
 ---
 
@@ -192,7 +253,41 @@ CI runs `npm test` on every push and pull request.
 
 ## Versioning
 
-MarketIR changes are versioned via `schemaVersion` in the schema and data files. Breaking changes (renamed fields, removed properties, structural changes) require a major bump. Additive changes (new optional fields, new `$defs`) are minor. Downstream consumers like the site bridge should check `schemaVersion` compatibility before ingesting.
+MarketIR changes are versioned via `schemaVersion` in the schema and data files. The current major is `1`.
+
+### What counts as breaking, additive, or cosmetic
+
+| Bump  | Examples                                                                                                                  |
+| ----- | ------------------------------------------------------------------------------------------------------------------------- |
+| Major | Renaming a field, removing a field or `$def`, changing a field's type, tightening an `enum`, restructuring nested shapes  |
+| Minor | Adding a new optional field, adding a new `$def`, loosening an `enum`, adding a new entity type behind a new index branch |
+| Patch | Description text, comments, ordering of `$defs` (output is byte-identical via deterministic serialization)                |
+
+If a change makes a previously-valid document invalid against the new schema, it is breaking — regardless of how small it looks.
+
+### Deprecation lifecycle (schema fields)
+
+When a schema field becomes obsolete:
+
+1. Mark it as deprecated in the schema (`description: "Deprecated as of vX.Y; …"`) in a **minor** release. Keep accepting it.
+2. Update `CHANGELOG.md` with `consumer-impact: yes` and explicit migration guidance.
+3. In the next **major** release, the field may be removed. Consumers have a full major version to migrate.
+
+Single-step removal (deprecate + remove in the same release) is allowed only when the field is provably unused — i.e., zero data files reference it and no public consumer depends on it. Document the audit in the changelog.
+
+### ID deprecation lifecycle (data entities)
+
+IDs themselves are never renamed or removed. A claim, tool, message, or evidence record that is no longer current is set to `status: "deprecated"` (where the entity supports a status field) or moved into a deprecated section, but stays in the index for audit. This is the inverse of schema-field deprecation: schema fields can disappear; entity IDs are forever.
+
+### Coordination with consumers
+
+When a release contains breaking changes, the changelog entry must:
+
+- State the new major version.
+- List every removed or restructured field, with a one-sentence migration note.
+- Tag the entry `consumer-impact: yes` so downstream vendors (the site bridge, future generators) can search for impactful releases.
+
+Consumers should pin to a specific tag, read `schemaVersion` from the fetched lockfile, and refuse to ingest if the major differs from what they were built against.
 
 ---
 
@@ -200,17 +295,7 @@ MarketIR changes are versioned via `schemaVersion` in the schema and data files.
 
 No secrets, private URLs, API keys, or customer identifiers belong in this repo. Evidence means public artifacts — screenshots, CI links, test results — not internal logs or credentials. If something can't be shown publicly, it's not evidence.
 
-### Data scope
-
-| Aspect               | Detail                                                                      |
-| -------------------- | --------------------------------------------------------------------------- |
-| **Data touched**     | Marketing claim/evidence JSON files (local), lock files with SHA-256 hashes |
-| **Data NOT touched** | No user data, no credentials, no databases, no external services            |
-| **Permissions**      | Read/write: marketing data files in repo only                               |
-| **Network**          | None — fully offline validation and generation tools                        |
-| **Telemetry**        | None collected or sent                                                      |
-
-See [SECURITY.md](SECURITY.md) for vulnerability reporting.
+The full data-scope table (data touched, data NOT touched, permissions, network, telemetry) lives in [SECURITY.md](SECURITY.md), which is also where you go to report a vulnerability. SECURITY.md is the single source of truth for the threat model.
 
 ---
 
@@ -227,9 +312,7 @@ See [SECURITY.md](SECURITY.md) for vulnerability reporting.
 
 > **Score: 42/50** (revised down from 50/50 after honest re-audit; see [SCORECARD.md](SCORECARD.md#why-scores-were-revised-down) for methodology).
 >
-> Last reviewed: 2026-05-15. Full audit: [SHIP_GATE.md](SHIP_GATE.md) · [SCORECARD.md](SCORECARD.md)
->
-> **Audit cadence:** re-score on every minor release, or quarterly — whichever comes first.
+> Full audit: [SHIP_GATE.md](SHIP_GATE.md) · [SCORECARD.md](SCORECARD.md) (last reviewed + audit cadence live in SCORECARD.md as the single source of truth).
 
 ---
 

@@ -1,0 +1,78 @@
+name: Bug report
+description: A script, schema, or claim is producing the wrong result.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a clear bug. The repo's thesis is that
+        claims are falsifiable — bug reports are most useful when they include
+        the exact command, the actual output, and what you expected instead.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Tag or commit SHA you're on (e.g., `v1.0.0`, `abcdef0`).
+      placeholder: v1.0.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other (describe in steps)
+    validations:
+      required: true
+
+  - type: input
+    id: node
+    attributes:
+      label: Node version
+      description: Output of `node --version`. The repo supports Node 20+.
+      placeholder: v22.10.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact commands. Paste output as-is — do not summarize.
+      placeholder: |
+        1. `git clone https://github.com/mcp-tool-shop/mcpt-marketing`
+        2. `cd mcpt-marketing && npm ci`
+        3. `npm run validate`
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Include the full error message and any stack trace.
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Logs, screenshots, related issues. Optional.
+    validations:
+      required: false

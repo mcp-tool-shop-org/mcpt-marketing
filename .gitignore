@@ -11,6 +11,27 @@ Thumbs.db
 .vscode/
 *.iml
 npm-debug.log*
+*.log
 .npm/
 coverage/
 desktop.ini
+
+# npm pack output
+*.tgz
+*.tar.gz
+
+# Competing lockfiles — npm is the only supported package manager.
+pnpm-lock.yaml
+yarn.lock
+.yarn/
+.pnp.*
+
+# Build / framework caches
+.turbo/
+.next/
+.nuxt/
+.cache/
+tmp/
+temp/
+.tsbuildinfo
+.nyc_output/

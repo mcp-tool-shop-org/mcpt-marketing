@@ -42,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version: ["22"]
+        node-version: ["20", "22"]
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -52,16 +52,42 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        shell: bash
+        run: npm ci || (sleep 10 && npm ci)
 
       - name: Format check
-        run: npm run fmt:check
+        shell: bash
+        run: |
+          npm run fmt:check
+          echo "- Format check: passed (\`prettier --check .\`)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Schema + invariant validation
-        run: npm run validate
+        shell: bash
+        run: |
+          npm run validate
+          echo "- Schema + invariant validation: passed (\`marketing/scripts/validate.mjs\`)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Tests
-        run: npm test
+        shell: bash
+        run: |
+          npm test
+          echo "- Tests: passed (\`node --test\`)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Lockfile drift check
-        run: npm run lock:check
+        shell: bash
+        run: |
+          npm run lock:check
+          echo "- Lockfile drift check: passed (\`gen-lock.mjs --check\`)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Job summary header
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo ""
+            echo "### CI matrix cell"
+            echo ""
+            echo "- OS: \`${{ matrix.os }}\`"
+            echo "- Node: \`${{ matrix.node-version }}\`"
+            echo "- Status: \`${{ job.status }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

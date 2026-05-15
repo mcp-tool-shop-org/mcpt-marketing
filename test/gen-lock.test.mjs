@@ -184,4 +184,67 @@ describe("gen-lock.mjs determinism + check mode", () => {
       `lockfile.files[].path is not sorted alphabetically.\nactual: ${JSON.stringify(paths)}\nsorted: ${JSON.stringify(sorted)}`,
     );
   });
+
+  // F-W6-TESTS-002 — first-clone error path.
+  // gen-lock.mjs:110-116 wraps a missing-lockfile ENOENT into a helpful
+  // "Run 'npm run lock'" envelope. This is the message a contributor sees on
+  // a fresh clone if they run `npm run lock:check` before `npm run lock`. A
+  // regression that drops the wrapper (e.g. propagates the raw ENOENT) would
+  // not fail any existing test because the rest of the suite always
+  // regenerates the lockfile in `before()`.
+  it("--check exits 1 with a helpful message when the lockfile is missing", () => {
+    // The `before()` hook above already snapshotted LOCK -> BACKUP; the
+    // `after()` hook restores it. So we can safely delete the on-disk lock
+    // here knowing the suite will leave a clean tree behind.
+    if (existsSync(LOCK)) unlinkSync(LOCK);
+    assert.ok(!existsSync(LOCK), "precondition: lockfile must be absent for this test");
+
+    try {
+      const check = runGenLock(["--check"]);
+      assert.equal(
+        check.status,
+        1,
+        `--check should exit 1 when lockfile is missing; got ${check.status}.\nstdout: ${check.stdout}\nstderr: ${check.stderr}`,
+      );
+      assert.match(
+        check.stderr,
+        /Lockfile does not exist|Run.*npm run lock/i,
+        `stderr should explain the missing lockfile and how to fix it; got: ${check.stderr}`,
+      );
+      // Defense-in-depth: the message should be a one-line envelope, not a
+      // raw Node ENOENT stack.
+      assert.ok(
+        !/\n\s+at\s/.test(check.stderr),
+        `stderr should not contain a Node stack trace; got: ${check.stderr}`,
+      );
+    } finally {
+      // Restore from BACKUP so subsequent tests in this suite (and the
+      // `after()` hook) see a clean tree. Without this, the next test that
+      // expects an existing lockfile would race against the regen.
+      if (existsSync(BACKUP)) copyFileSync(BACKUP, LOCK);
+    }
+  });
+
+  it("--check exits 1 with a clean envelope when the lockfile is not valid JSON", () => {
+    // Companion to the missing-lockfile test: gen-lock.mjs:120-124 wraps a
+    // JSON.parse failure into a "Lockfile at X is not valid JSON" envelope.
+    // Pin so a refactor that drops the try/catch surfaces a raw SyntaxError.
+    writeFileSync(LOCK, "{not json", "utf8");
+
+    try {
+      const check = runGenLock(["--check"]);
+      assert.equal(
+        check.status,
+        1,
+        `--check should exit 1 on malformed lockfile; got ${check.status}.\nstdout: ${check.stdout}\nstderr: ${check.stderr}`,
+      );
+      assert.match(
+        check.stderr,
+        /not valid JSON|JSON/i,
+        `stderr should mention 'not valid JSON'; got: ${check.stderr}`,
+      );
+    } finally {
+      if (existsSync(BACKUP)) copyFileSync(BACKUP, LOCK);
+    }
+  });
 });

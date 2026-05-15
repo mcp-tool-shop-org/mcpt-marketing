@@ -1,10 +1,17 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://mcp-tool-shop.github.io/mcpt-marketing/schema/marketing.schema.json",
+  "$id": "https://mcp-tool-shop.github.io/mcpt-marketing/schema/v1/marketing.schema.json",
+  "schemaVersion": "1",
   "title": "MarketIR Schema",
-  "description": "Deterministic marketing intermediate representation for MCP Tool Shop tools.",
+  "description": "Deterministic marketing intermediate representation for MCP Tool Shop tools.\n\nConventions for forward compatibility:\n  - Field-level deprecation: fields annotated `deprecated: true` (JSON Schema 2020-12 keyword) are scheduled for removal in the next MAJOR schemaVersion. Producers SHOULD stop writing them; consumers SHOULD ignore them. The convention is: rename → keep the old field for one minor cycle marked `deprecated: true` with `description: \"Renamed to X. Will be removed in v2.\"` → remove in the next major. See `$defs._deprecation` for a template.\n  - ID stability: every IDed entity (tool, audience, claim, evidence, message, campaign) supports an optional `aliases[]` of previous IDs. When an entity is renamed, the old ID moves into `aliases[]`. Consumers that resolve a missing ID MAY fall back to scanning `aliases[]` to build an alias→canonical resolution map. New aliases are append-only; never repurpose.\n  - Extension fields: every top-level entity object permits properties prefixed `x-` (the W3C/OpenAPI extension convention) for vendor/consumer extensions and forward-compatible experimentation. These are intentionally not validated by the schema; the strict `additionalProperties: false` policy still rejects unknown non-prefixed properties.\n  - Enum extensibility: `messageChannel` and `pressContactMethod` use a `oneOf [closed-enum, x-prefixed pattern]` shape, so producers MAY ship `x-bluesky` / `x-mastodon` / `x-podcast` etc. without a schema bump. Consumers SHOULD warn-not-fail on x-prefixed values they do not recognize.\n  - Schema version: this schema document carries a top-level `schemaVersion` of its own; the `$id` is version-aware (`/schema/v1/...`). Artifact `schemaVersion` fields assert conformance to that schema major version.\n  - Defaults: a few fields declare `default` values. Consumers SHOULD run AJV with `useDefaults: true` to populate them. Defaults do not relax `required`.",
 
   "$defs": {
+    "_deprecation": {
+      "$comment": "Template / convention reference (not referenced by any field). When deprecating a field, copy this pattern: add `\"deprecated\": true` and update the `description` to start with `\"Renamed to X. Will be removed in v2.\"`. The validator may emit a warning when data populates a deprecated field. This block is intentionally inert — its purpose is to document the convention in one place.",
+      "deprecated": true,
+      "description": "Renamed to <new-field>. Will be removed in v2."
+    },
+
     "nonEmptyString": {
       "type": "string",
       "minLength": 1,
@@ -42,26 +49,66 @@
       "pattern": "^camp\\.[a-z0-9-]+\\.[a-z0-9-]+$"
     },
 
+    "lastModified": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime when this artifact's content was last meaningfully changed. Optional; populated by the lock generator when it regenerates. Consumers MAY use this for conditional fetches and cache invalidation."
+    },
+
+    "contentHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hex digest of this artifact's serialized content (mirrors the lockfile entry). Optional; populated by the lock generator. Consumers MAY use this for cache validation without joining against the lockfile."
+    },
+
     "claimStatus": {
       "type": "string",
-      "enum": ["proven", "aspirational", "deprecated"]
+      "default": "aspirational",
+      "enum": ["proven", "aspirational", "deprecated"],
+      "description": "Lifecycle state of a claim. Default `aspirational` is the safe default — a claim must explicitly graduate to `proven` (with evidence) or be retired to `deprecated`."
     },
     "evidenceType": {
       "type": "string",
-      "enum": ["image", "text", "report", "video", "link"]
+      "default": "report",
+      "enum": ["image", "text", "report", "video", "link"],
+      "description": "Closed taxonomy. Admission criteria for new values: must be a structurally distinct evidence shape (not a sub-genre of an existing type). `interactive` and `benchmark` are anticipated v2 candidates."
     },
     "messageTone": {
       "type": "string",
-      "enum": ["technical", "pragmatic", "playful", "executive"]
+      "default": "pragmatic",
+      "enum": ["technical", "pragmatic", "playful", "executive"],
+      "description": "Closed taxonomy. Admission criteria for new values: must capture a distinct register that meaningfully changes drafting, not a topic. `technical-deep` vs `technical-intro` are anticipated v2 candidates."
     },
     "messageChannel": {
-      "type": "string",
-      "enum": ["web", "readme", "hn", "x", "linkedin", "newsletter", "presskit"]
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["web", "readme", "hn", "x", "linkedin", "newsletter", "presskit"],
+          "description": "Known/canonical message channels."
+        },
+        {
+          "type": "string",
+          "pattern": "^x-[a-z][a-z0-9-]*$",
+          "description": "Experimental / forward-compat channel (e.g. `x-bluesky`, `x-mastodon`, `x-podcast`, `x-discord`, `x-reddit`). Producers MAY ship x-prefixed values without a schema bump. Consumers SHOULD warn-not-fail on unrecognized x-channels."
+        }
+      ],
+      "description": "Distribution channel for a message. Closed enum + x-prefixed extension pattern for forward compatibility."
     },
 
     "pressContactMethod": {
-      "type": "string",
-      "enum": ["email", "x-dm", "linkedin", "github-issue", "form"]
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["email", "x-dm", "linkedin", "github-issue", "form"],
+          "description": "Known/canonical contact methods."
+        },
+        {
+          "type": "string",
+          "pattern": "^x-[a-z][a-z0-9-]*$",
+          "description": "Experimental / forward-compat contact method (e.g. `x-bluesky-dm`, `x-mastodon-dm`, `x-signal`, `x-matrix`). Producers MAY ship x-prefixed values without a schema bump."
+        }
+      ],
+      "description": "Press/partner contact method. Closed enum + x-prefixed extension pattern for forward compatibility."
     },
 
     "pressContact": {
@@ -79,6 +126,9 @@
           "description": "Human-readable label for this contact method."
         },
         "notes": { "type": "string" }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "additionalProperties": false,
       "allOf": [
@@ -109,6 +159,18 @@
           "if": { "properties": { "method": { "const": "form" } }, "required": ["method"] },
           "then": { "properties": { "value": { "type": "string", "format": "uri" } } }
         }
+      ],
+      "examples": [
+        {
+          "method": "email",
+          "value": "press@example.com",
+          "label": "Press inquiries"
+        },
+        {
+          "method": "github-issue",
+          "value": "https://github.com/owner/repo/issues",
+          "label": "Open an issue"
+        }
       ]
     },
 
@@ -137,7 +199,18 @@
           "description": "Claims this quote supports."
         }
       },
-      "additionalProperties": false
+      "patternProperties": {
+        "^x-": {}
+      },
+      "additionalProperties": false,
+      "examples": [
+        {
+          "text": "We replaced 200 lines of brittle CI scripts with one zip-meta-map invocation.",
+          "attribution": "Jane Doe",
+          "role": "Staff Engineer, ExampleCo",
+          "claimRefs": ["claim.zip-meta-map.ci-gating"]
+        }
+      ]
     },
 
     "pressComparable": {
@@ -155,6 +228,9 @@
           "description": "How it differs (honest, not dismissive)."
         },
         "notes": { "type": "string" }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "additionalProperties": false
     },
@@ -176,6 +252,9 @@
           "type": "string",
           "description": "Any limitations or conditions."
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "additionalProperties": false
     },
@@ -201,12 +280,22 @@
         },
         "notes": { "type": "string" }
       },
-      "additionalProperties": false
+      "patternProperties": {
+        "^x-": {}
+      },
+      "additionalProperties": false,
+      "examples": [
+        {
+          "owner": "Aider-AI",
+          "repo": "aider",
+          "notes": "Canonical aider repo"
+        }
+      ]
     },
 
     "targetingBlock": {
       "type": "object",
-      "description": "Optional targeting spec for partner/integrator discovery. Drives the target list generator.",
+      "description": "Optional targeting spec for partner/integrator discovery. Drives the target list generator.\n\nConsumer behavior on missing fields:\n  - keywords/topics: required for any target generation; if BOTH absent, generator MUST emit zero targets and warn.\n  - languages: if absent, generator does NOT filter by language (matches all).\n  - orgTypes: if absent, generator includes both 'org' and 'user' results.\n  - exclusions: if absent, generator applies no exclusions.\n  - seedRepos: if absent, generator skips similarity expansion.",
       "properties": {
         "keywords": {
           "type": "array",
@@ -247,6 +336,9 @@
           "description": "Known repos to use for similarity expansion."
         }
       },
+      "patternProperties": {
+        "^x-": {}
+      },
       "additionalProperties": false
     },
 
@@ -277,8 +369,11 @@
               "type": "array",
               "items": { "type": "string", "minLength": 1 },
               "uniqueItems": true,
-              "description": "Phrases to never use in press/marketing (e.g. AI-powered, revolutionary)."
+              "description": "Phrases to never use in press/marketing (e.g. AI-powered, revolutionary). The validator unions per-tool lists with any project-wide list (`marketing.index.json.projectForbiddenPhrases`) and scans all prose against the union."
             }
+          },
+          "patternProperties": {
+            "^x-": {}
           },
           "additionalProperties": false
         },
@@ -304,6 +399,9 @@
           "uniqueItems": true
         }
       },
+      "patternProperties": {
+        "^x-": {}
+      },
       "additionalProperties": false
     },
 
@@ -323,6 +421,40 @@
           "type": "string"
         }
       },
+      "patternProperties": {
+        "^x-": {}
+      },
+      "additionalProperties": false
+    },
+
+    "graduation": {
+      "type": "object",
+      "description": "Optional graduation tracking for aspirational claims. Recommended when status='aspirational' and the team commits to graduating. Omit for exploratory claims with no committed timeline. The validator MAY warn-or-fail when status='aspirational' and graduation.targetDate is in the past.",
+      "properties": {
+        "targetDate": {
+          "type": "string",
+          "format": "date",
+          "description": "YYYY-MM-DD by which proven evidence is expected."
+        },
+        "blockedBy": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Free-form blocker (e.g. 'Upstream zip-meta-map repo not public', 'benchmark-not-yet-built'). Consumers MAY group claims by this for triage."
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Person or team responsible for graduating this claim."
+        },
+        "criteria": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What evidence would graduate this claim to proven. One sentence."
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      },
       "additionalProperties": false
     },
 
@@ -331,6 +463,12 @@
       "required": ["id", "status", "statement"],
       "properties": {
         "id": { "$ref": "#/$defs/claimId" },
+        "aliases": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/claimId" },
+          "uniqueItems": true,
+          "description": "Previous IDs by which this claim may have been known. Append-only; never repurpose. Consumers that resolve a missing ID MAY fall back to scanning aliases."
+        },
         "status": { "$ref": "#/$defs/claimStatus" },
         "statement": {
           "type": "string",
@@ -343,9 +481,13 @@
           "uniqueItems": true,
           "description": "Required when status is proven."
         },
+        "graduation": { "$ref": "#/$defs/graduation" },
         "notes": {
           "type": "string"
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "additionalProperties": false,
       "if": {
@@ -356,7 +498,26 @@
         "properties": {
           "evidenceRefs": { "type": "array", "minItems": 1 }
         }
-      }
+      },
+      "examples": [
+        {
+          "id": "claim.example.deterministic-output",
+          "status": "proven",
+          "statement": "Given the same repository state, the tool produces byte-identical output.",
+          "evidenceRefs": ["ev.example.deterministic-test.v1"]
+        },
+        {
+          "id": "claim.example.sub-second-builds",
+          "status": "aspirational",
+          "statement": "Typical repo builds complete in under one second.",
+          "graduation": {
+            "targetDate": "2026-09-01",
+            "blockedBy": "benchmark harness not yet built",
+            "owner": "perf-team",
+            "criteria": "p50 build time across the dogfood corpus is under 1.0s"
+          }
+        }
+      ]
     },
 
     "antiClaim": {
@@ -372,6 +533,9 @@
           "type": "string"
         }
       },
+      "patternProperties": {
+        "^x-": {}
+      },
       "additionalProperties": false
     },
 
@@ -380,6 +544,12 @@
       "required": ["id", "channel", "tone", "text", "claimRefs"],
       "properties": {
         "id": { "$ref": "#/$defs/messageId" },
+        "aliases": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/messageId" },
+          "uniqueItems": true,
+          "description": "Previous IDs by which this message may have been known. Append-only; never repurpose."
+        },
         "channel": { "$ref": "#/$defs/messageChannel" },
         "tone": { "$ref": "#/$defs/messageTone" },
         "text": {
@@ -399,7 +569,20 @@
           "type": "string"
         }
       },
-      "additionalProperties": false
+      "patternProperties": {
+        "^x-": {}
+      },
+      "additionalProperties": false,
+      "examples": [
+        {
+          "id": "msg.example.web-blurb",
+          "channel": "web",
+          "tone": "pragmatic",
+          "text": "Make repos and ZIPs self-describing for LLMs with CI-grade diffs.",
+          "claimRefs": ["claim.example.deterministic-output"],
+          "constraints": { "maxChars": 280 }
+        }
+      ]
     },
 
     "tool": {
@@ -417,6 +600,14 @@
       "properties": {
         "schemaVersion": { "$ref": "#/$defs/schemaVersion" },
         "id": { "$ref": "#/$defs/toolId" },
+        "aliases": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/toolId" },
+          "uniqueItems": true,
+          "description": "Previous IDs by which this tool may have been known. Append-only; never repurpose."
+        },
+        "lastModified": { "$ref": "#/$defs/lastModified" },
+        "contentHash": { "$ref": "#/$defs/contentHash" },
         "name": {
           "type": "string",
           "minLength": 1
@@ -437,6 +628,9 @@
               "uniqueItems": true,
               "description": "Key value propositions."
             }
+          },
+          "patternProperties": {
+            "^x-": {}
           },
           "additionalProperties": false
         },
@@ -467,7 +661,40 @@
         "press": { "$ref": "#/$defs/pressBlock" },
         "targeting": { "$ref": "#/$defs/targetingBlock" }
       },
-      "additionalProperties": false
+      "patternProperties": {
+        "^x-": {}
+      },
+      "additionalProperties": false,
+      "examples": [
+        {
+          "schemaVersion": "1.0.0",
+          "id": "tool.example",
+          "name": "example",
+          "positioning": {
+            "oneLiner": "One sentence about the tool.",
+            "valueProps": ["Deterministic", "CI-friendly"]
+          },
+          "audienceRefs": ["aud.example-audience"],
+          "claims": [
+            {
+              "id": "claim.example.deterministic-output",
+              "status": "proven",
+              "statement": "Same input produces byte-identical output.",
+              "evidenceRefs": ["ev.example.test.v1"]
+            }
+          ],
+          "antiClaims": [{ "statement": "Does not perform runtime vulnerability scanning." }],
+          "messages": [
+            {
+              "id": "msg.example.web",
+              "channel": "web",
+              "tone": "pragmatic",
+              "text": "One pragmatic sentence about the tool.",
+              "claimRefs": ["claim.example.deterministic-output"]
+            }
+          ]
+        }
+      ]
     },
 
     "audience": {
@@ -476,6 +703,14 @@
       "properties": {
         "schemaVersion": { "$ref": "#/$defs/schemaVersion" },
         "id": { "$ref": "#/$defs/audienceId" },
+        "aliases": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/audienceId" },
+          "uniqueItems": true,
+          "description": "Previous IDs by which this audience may have been known. Append-only; never repurpose."
+        },
+        "lastModified": { "$ref": "#/$defs/lastModified" },
+        "contentHash": { "$ref": "#/$defs/contentHash" },
         "name": {
           "type": "string",
           "minLength": 1
@@ -491,7 +726,19 @@
           "uniqueItems": true
         }
       },
-      "additionalProperties": false
+      "patternProperties": {
+        "^x-": {}
+      },
+      "additionalProperties": false,
+      "examples": [
+        {
+          "schemaVersion": "1.0.0",
+          "id": "aud.example",
+          "name": "Example audience",
+          "description": "Engineers who care about determinism and CI gating.",
+          "painPoints": ["Build artifacts drift silently", "PR reviews lack structural context"]
+        }
+      ]
     },
 
     "evidence": {
@@ -499,6 +746,14 @@
       "required": ["id", "type", "format", "sha256", "bytes", "provenance"],
       "properties": {
         "id": { "$ref": "#/$defs/evidenceId" },
+        "aliases": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/evidenceId" },
+          "uniqueItems": true,
+          "description": "Previous IDs by which this evidence may have been known. Append-only; never repurpose."
+        },
+        "lastModified": { "$ref": "#/$defs/lastModified" },
+        "contentHash": { "$ref": "#/$defs/contentHash" },
         "type": { "$ref": "#/$defs/evidenceType" },
         "format": {
           "type": "string",
@@ -548,8 +803,14 @@
               "type": "string"
             }
           },
+          "patternProperties": {
+            "^x-": {}
+          },
           "additionalProperties": false
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "additionalProperties": false,
       "oneOf": [
@@ -570,6 +831,20 @@
               "format": "uri",
               "description": "External URL if evidence is not local."
             }
+          }
+        }
+      ],
+      "examples": [
+        {
+          "id": "ev.example.dashboard.v1",
+          "type": "image",
+          "format": "image/png",
+          "path": "marketing/evidence/example-dashboard.png",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "bytes": 12345,
+          "provenance": {
+            "generator": "manual capture by author",
+            "sourceCommit": "0000000000000000000000000000000000000000"
           }
         }
       ]
@@ -598,7 +873,18 @@
           "type": "string"
         }
       },
-      "additionalProperties": false
+      "patternProperties": {
+        "^x-": {}
+      },
+      "additionalProperties": false,
+      "examples": [
+        {
+          "name": "Soft launch",
+          "channels": ["readme", "web"],
+          "messageRefs": ["msg.example.readme-snippet", "msg.example.web-blurb"],
+          "notes": "Polish the tool page and README before any external promotion."
+        }
+      ]
     },
 
     "campaign": {
@@ -607,6 +893,14 @@
       "properties": {
         "schemaVersion": { "$ref": "#/$defs/schemaVersion" },
         "id": { "$ref": "#/$defs/campaignId" },
+        "aliases": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/campaignId" },
+          "uniqueItems": true,
+          "description": "Previous IDs by which this campaign may have been known. Append-only; never repurpose."
+        },
+        "lastModified": { "$ref": "#/$defs/lastModified" },
+        "contentHash": { "$ref": "#/$defs/contentHash" },
         "name": {
           "type": "string",
           "minLength": 1
@@ -625,7 +919,26 @@
           "uniqueItems": true
         }
       },
-      "additionalProperties": false
+      "patternProperties": {
+        "^x-": {}
+      },
+      "additionalProperties": false,
+      "examples": [
+        {
+          "schemaVersion": "1.0.0",
+          "id": "camp.example.launch",
+          "name": "Example Launch",
+          "toolRef": "tool.example",
+          "audienceRefs": ["aud.example"],
+          "phases": [
+            {
+              "name": "Soft launch",
+              "channels": ["readme", "web"],
+              "messageRefs": ["msg.example.readme", "msg.example.web"]
+            }
+          ]
+        }
+      ]
     },
 
     "fileRef": {
@@ -636,7 +949,16 @@
           "type": "string",
           "pattern": "^[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*\\.json$",
           "description": "Relative path from marketing/data/ to the file. Restricts to .json files within nested subdirectories; rejects path traversal (../) and absolute paths."
+        },
+        "lastModified": { "$ref": "#/$defs/lastModified" },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "Optional sha256 mirrored from the lockfile, populated by the lock generator. Lets consumers short-circuit on the index alone without joining against the lockfile."
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "additionalProperties": false
     },
@@ -646,6 +968,18 @@
       "required": ["schemaVersion", "tools", "audiences", "campaigns"],
       "properties": {
         "schemaVersion": { "$ref": "#/$defs/schemaVersion" },
+        "projectForbiddenPhrases": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "description": "Optional project-wide list of phrases to never use in any prose. The validator unions this with each tool's per-tool `press.boilerplate.forbiddenPhrases` and scans ALL prose (campaign notes, audience descriptions, message text, tool oneLiner / valueProps) against the union. Lets the project-wide do-not-say list live in one place instead of being copied per-tool."
+        },
+        "projectPreferredNouns": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "description": "Optional project-wide list of preferred nouns. Each tool's `press.boilerplate.preferredNouns` MAY override; otherwise this list is the inherited default."
+        },
         "tools": {
           "type": "array",
           "items": { "$ref": "#/$defs/fileRef" }
@@ -658,6 +992,9 @@
           "type": "array",
           "items": { "$ref": "#/$defs/fileRef" }
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "additionalProperties": false
     }

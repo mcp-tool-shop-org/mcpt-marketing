@@ -17,36 +17,73 @@
       "id": "claim.zip-meta-map.deterministic-output",
       "status": "aspirational",
       "statement": "Given the same repository state, zip-meta-map produces byte-identical index output.",
+      "graduation": {
+        "targetDate": "2026-09-15",
+        "blockedBy": "Upstream zip-meta-map repo not public",
+        "owner": "mcp-tool-shop",
+        "criteria": "Re-link upstream test_report_deterministic + test_diff identical-indices artifacts as ev.zip-meta-map.* records once the upstream repo is public."
+      },
       "notes": "Awaiting upstream zip-meta-map repo public release; downgraded from proven 2026-05-15. Backing evidence (test_report_deterministic, test_diff identical-indices, deterministic chunker tests) lives in the upstream repo and will be re-linked once public."
     },
     {
       "id": "claim.zip-meta-map.test-suite",
+      "aliases": ["claim.zip-meta-map.246-tests"],
       "status": "aspirational",
       "statement": "Every release ships with a passing test suite that exercises CLI, schema, and diff behavior.",
-      "notes": "Awaiting upstream zip-meta-map repo public release; downgraded from proven 2026-05-15. Restated as a stable property (no hardcoded count) per F-CONTRACT-007. Backing evidence is the upstream CI run history."
+      "graduation": {
+        "targetDate": "2026-09-15",
+        "blockedBy": "Upstream zip-meta-map repo not public",
+        "owner": "mcp-tool-shop",
+        "criteria": "Re-link upstream CI run history as a structured ev.zip-meta-map.test-suite.v1 evidence artifact once the upstream repo is public."
+      },
+      "notes": "Awaiting upstream zip-meta-map repo public release; downgraded from proven 2026-05-15. Restated as a stable property (no hardcoded count) per F-CONTRACT-007. Renamed from claim.zip-meta-map.246-tests in v0.10 slice 2; old ID retained in aliases[] for downstream consumer resolution. Backing evidence is the upstream CI run history."
     },
     {
       "id": "claim.zip-meta-map.ci-gating",
       "status": "aspirational",
       "statement": "zip-meta-map diff --exit-code returns non-zero when metadata drifts, suitable for CI gating.",
+      "graduation": {
+        "targetDate": "2026-09-15",
+        "blockedBy": "Upstream zip-meta-map repo not public",
+        "owner": "mcp-tool-shop",
+        "criteria": "Re-link upstream CI workflow definition (uses diff --exit-code for gating) as ev.zip-meta-map.ci-workflow.v1 once public."
+      },
       "notes": "Awaiting upstream zip-meta-map repo public release; downgraded from proven 2026-05-15. Backing evidence is the upstream CI workflow definition (uses diff --exit-code for gating)."
     },
     {
       "id": "claim.zip-meta-map.token-budgets",
       "status": "aspirational",
       "statement": "LLM plans respect configurable token budgets, producing structured context that fits within specified limits.",
+      "graduation": {
+        "targetDate": "2026-10-01",
+        "blockedBy": "Token-budget property test not yet built",
+        "owner": "mcp-tool-shop",
+        "criteria": "A property test that asserts plan size <= configured budget across the dogfood corpus, captured as ev.zip-meta-map.token-budget-test.v1."
+      },
       "notes": "Algorithmic claim; awaiting falsifiable test-report evidence (token-budget property test). Downgraded from proven 2026-05-15."
     },
     {
       "id": "claim.zip-meta-map.schema-validated",
       "status": "aspirational",
       "statement": "All output conforms to a published JSON Schema, validated in CI on every commit.",
+      "graduation": {
+        "targetDate": "2026-09-15",
+        "blockedBy": "Upstream zip-meta-map repo not public",
+        "owner": "mcp-tool-shop",
+        "criteria": "Re-link upstream CI test suite that runs schema validation on every commit as ev.zip-meta-map.schema-validation.v1 once public."
+      },
       "notes": "Awaiting upstream zip-meta-map repo public release; downgraded from proven 2026-05-15. Backing evidence is the upstream CI test suite that runs schema validation on every commit."
     },
     {
       "id": "claim.zip-meta-map.sub-second-builds",
       "status": "aspirational",
       "statement": "Typical repo builds complete in under one second on commodity hardware.",
+      "graduation": {
+        "targetDate": "2026-11-01",
+        "blockedBy": "Reproducible benchmark harness not yet built",
+        "owner": "mcp-tool-shop",
+        "criteria": "p50 build time under 1.0s across the dogfood corpus on a documented commodity reference machine, captured as ev.zip-meta-map.bench.v1."
+      },
       "notes": "Anecdotally true but not yet benchmarked with reproducible methodology."
     }
   ],

@@ -1,52 +1,15 @@
 import { describe, it, after } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, symlinkSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { tmpdir } from "node:os";
+import { makeTempMarketingTree } from "./helpers/temp-tree.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const SCRIPT = join(ROOT, "marketing/scripts/validate.mjs");
-const TOOL_FIXTURE_PATH = join(ROOT, "marketing/data/tools/zip-meta-map.json");
-
-/**
- * Build an isolated marketing/ tree under a temp dir by copying the real
- * marketing/ contents. validate.mjs is anchored to its own __dirname, so to
- * run it against a mutated tree we copy everything (scripts + schema + data
- * + manifests) into the temp dir and invoke the temp copy of validate.mjs.
- *
- * Returns { tempRoot, validateScript } — caller is responsible for cleanup
- * via rmSync(tempRoot, { recursive: true, force: true }).
- */
-function makeTempMarketingTree(label) {
-  const tempRoot = join(tmpdir(), `mcpt-marketing-test-${label}-${process.pid}-${Date.now()}`);
-  mkdirSync(tempRoot, { recursive: true });
-  // Mirror only the marketing/ subtree — that's all validate.mjs reads.
-  cpSync(join(ROOT, "marketing"), join(tempRoot, "marketing"), {
-    recursive: true,
-  });
-  // Mirror node_modules so ajv resolves. Symlink would be faster but we want
-  // cross-platform reliability — node has built-in handling for repeated
-  // copies, and the tests run rarely enough that cost is fine.
-  // Cheaper alternative: symlink + fall back to copy. Try symlink first
-  // (junction works on Windows without admin rights and on POSIX as a regular
-  // symlink because node ignores the type arg there).
-  try {
-    symlinkSync(join(ROOT, "node_modules"), join(tempRoot, "node_modules"), "junction");
-  } catch {
-    // Fall back to copy on platforms / filesystems where symlink is denied.
-    cpSync(join(ROOT, "node_modules"), join(tempRoot, "node_modules"), {
-      recursive: true,
-    });
-  }
-  return {
-    tempRoot,
-    validateScript: join(tempRoot, "marketing/scripts/validate.mjs"),
-  };
-}
 
 function runValidate(scriptPath, cwd) {
   return spawnSync("node", [scriptPath], { cwd, encoding: "utf8" });
@@ -355,6 +318,230 @@ describe("validate.mjs — rejects broken data (negative cases)", () => {
       result.status,
       0,
       `validate should exit 0 when all claims are aspirational w/ no evidenceRefs; got ${result.status}.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`,
+    );
+  });
+
+  // F-W6-TESTS-001 — I12-extended (project-wide forbidden-phrase scan).
+  // The per-tool I12 path is already exercised above; these two tests pin
+  // the project-wide scope so a regression that scopes I12 back to per-tool
+  // only fails CI. validate.mjs:485-539 is the load-bearing block.
+  it("rejects a forbidden phrase appearing in an audience description (I12-extended, exit 1)", () => {
+    const { tempRoot, validateScript } = makeTempMarketingTree("i12-ext-aud");
+    cleanup.push(tempRoot);
+
+    // Pull the project-wide forbidden phrase from the tool fixture so the
+    // test stays in sync with whatever the real do-not-say list contains.
+    const toolPath = join(tempRoot, "marketing/data/tools/zip-meta-map.json");
+    const tool = JSON.parse(readFileSync(toolPath, "utf-8"));
+    const forbidden = tool.press?.boilerplate?.forbiddenPhrases;
+    assert.ok(
+      Array.isArray(forbidden) && forbidden.length > 0,
+      "fixture must declare press.boilerplate.forbiddenPhrases for I12-extended to fire",
+    );
+    const phrase = forbidden[0]; // e.g., "AI-powered"
+
+    // Inject the phrase into the first audience's description. This audience
+    // is not bound to any specific tool's boilerplate, so only the
+    // I12-extended (forbiddenUnion-based) scan can catch it.
+    const audPath = join(tempRoot, "marketing/data/audiences/ci-maintainers.json");
+    const aud = JSON.parse(readFileSync(audPath, "utf-8"));
+    aud.description = `${phrase} ${aud.description}`;
+    writeFileSync(audPath, JSON.stringify(aud, null, 2), "utf-8");
+
+    const result = runValidate(validateScript, tempRoot);
+    assert.equal(
+      result.status,
+      1,
+      `validate should exit 1 on forbidden phrase in audience description; got ${result.status}.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`,
+    );
+    assert.match(
+      result.stderr,
+      /FAIL:.*forbidden phrase.*audience/i,
+      `stderr should mention 'forbidden phrase' AND 'audience'; got: ${result.stderr}`,
+    );
+  });
+
+  it("rejects a forbidden phrase appearing in a campaign phase notes (I12-extended, exit 1)", () => {
+    const { tempRoot, validateScript } = makeTempMarketingTree("i12-ext-camp");
+    cleanup.push(tempRoot);
+
+    const toolPath = join(tempRoot, "marketing/data/tools/zip-meta-map.json");
+    const tool = JSON.parse(readFileSync(toolPath, "utf-8"));
+    const forbidden = tool.press?.boilerplate?.forbiddenPhrases;
+    assert.ok(
+      Array.isArray(forbidden) && forbidden.length > 0,
+      "fixture must declare press.boilerplate.forbiddenPhrases for I12-extended to fire",
+    );
+    const phrase = forbidden[0];
+
+    // Inject into a campaign phase note — neither the campaign nor its phases
+    // are bound to a tool's per-tool I12 scan, only to the union scan.
+    const campPath = join(tempRoot, "marketing/data/campaigns/zmm-launch.json");
+    const camp = JSON.parse(readFileSync(campPath, "utf-8"));
+    assert.ok(
+      Array.isArray(camp.phases) && camp.phases.length > 0,
+      "fixture must have >=1 campaign phase",
+    );
+    camp.phases[0].notes = `${phrase} ${camp.phases[0].notes || ""}`;
+    writeFileSync(campPath, JSON.stringify(camp, null, 2), "utf-8");
+
+    const result = runValidate(validateScript, tempRoot);
+    assert.equal(
+      result.status,
+      1,
+      `validate should exit 1 on forbidden phrase in campaign notes; got ${result.status}.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`,
+    );
+    assert.match(
+      result.stderr,
+      /FAIL:.*forbidden phrase.*campaign/i,
+      `stderr should mention 'forbidden phrase' AND 'campaign'; got: ${result.stderr}`,
+    );
+  });
+
+  // F-W6-TESTS-003 — error-envelope branches.
+  // validate.mjs has multiple defensive guards (lines 81-88 loadJson catch,
+  // 216-218 evidence manifest shape guard, 232-237 assertSafePath catch in
+  // I11). The Wave-3 hardening notes (F-SCRIPTS-W3-002 etc.) document why
+  // these matter; pin them so a refactor that drops the guards fails CI.
+  it("reports a one-line envelope when a data file is malformed JSON (exit 1)", () => {
+    const { tempRoot, validateScript } = makeTempMarketingTree("malformed-json");
+    cleanup.push(tempRoot);
+
+    // Replace a tool file with intentionally invalid JSON. The loadJson catch
+    // (validate.mjs:84-88) should surface a 'Failed to parse' envelope naming
+    // the file rather than a raw SyntaxError stack.
+    const toolPath = join(tempRoot, "marketing/data/tools/zip-meta-map.json");
+    writeFileSync(toolPath, "{not json", "utf-8");
+
+    const result = runValidate(validateScript, tempRoot);
+    assert.equal(
+      result.status,
+      1,
+      `validate should exit 1 on malformed tool JSON; got ${result.status}.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`,
+    );
+    assert.match(
+      result.stderr,
+      /Failed to parse|JSON/i,
+      `stderr should mention 'Failed to parse' or 'JSON'; got: ${result.stderr}`,
+    );
+    // The envelope must name the file so the contributor knows what to fix.
+    assert.match(
+      result.stderr,
+      /zip-meta-map\.json/,
+      `stderr should name the offending file; got: ${result.stderr}`,
+    );
+    // Defense-in-depth: the message should NOT include the multi-line Node
+    // stack. Our envelope is a single line.
+    assert.ok(
+      !/\n\s+at\s/.test(result.stderr),
+      `stderr should not contain a Node stack trace; got: ${result.stderr}`,
+    );
+  });
+
+  it("reports a clean error when evidence manifest entries[] is the wrong shape (no crash)", () => {
+    // F-SCRIPTS-W3-002: a contributor typo like `enrtries: []` (or any shape
+    // that makes entries non-array) must NOT crash with a TypeError that
+    // bypasses the per-item recovery elsewhere in validate.mjs.
+    const { tempRoot, validateScript } = makeTempMarketingTree("manifest-shape");
+    cleanup.push(tempRoot);
+
+    const manifestPath = join(tempRoot, "marketing/manifests/evidence.manifest.json");
+    // Drop `entries` entirely — equivalent to a typo that misnames the field.
+    writeFileSync(
+      manifestPath,
+      JSON.stringify({ schemaVersion: "1.0.0", enrtries: [] }, null, 2),
+      "utf-8",
+    );
+
+    const result = runValidate(validateScript, tempRoot);
+    assert.equal(
+      result.status,
+      1,
+      `validate should exit 1 on bad evidence manifest shape; got ${result.status}.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`,
+    );
+    // It must report the manifest issue with a meaningful 'FAIL: ...' line —
+    // not a raw 'Cannot read properties of undefined' TypeError.
+    assert.match(
+      result.stderr,
+      /FAIL:.*entries.*missing|FAIL:.*not an array|evidence\.manifest\.json/i,
+      `stderr should mention the manifest entries[] guard; got: ${result.stderr}`,
+    );
+    assert.ok(
+      !/TypeError/i.test(result.stderr),
+      `stderr should not surface a raw TypeError; got: ${result.stderr}`,
+    );
+  });
+
+  it("reports an Unsafe path error when an evidence path attempts traversal (exit 1)", () => {
+    // The assertSafePath catch at validate.mjs:232-237 demotes a path-pattern
+    // violation into a fail() accumulation rather than letting the Error
+    // propagate to the top-level catch (which would be less informative).
+    const { tempRoot, validateScript } = makeTempMarketingTree("path-traversal");
+    cleanup.push(tempRoot);
+
+    const manifestPath = join(tempRoot, "marketing/manifests/evidence.manifest.json");
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+    // Synthesize a manifest entry with a traversal path. We don't need the
+    // file to exist — the safe-path check fires before the readFile call.
+    manifest.entries.push({
+      id: "ev.path-traversal.fixture.v1",
+      type: "image",
+      format: "image/png",
+      path: "../etc/passwd",
+      sha256: "0".repeat(64),
+      bytes: 0,
+      provenance: {
+        generator: "test/validate.test.mjs",
+        sourceCommit: "0000000000000000000000000000000000000000",
+        notes: "Synthetic fixture for assertSafePath catch.",
+      },
+    });
+    writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), "utf-8");
+
+    const result = runValidate(validateScript, tempRoot);
+    assert.equal(
+      result.status,
+      1,
+      `validate should exit 1 on traversal path; got ${result.status}.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`,
+    );
+    assert.match(
+      result.stderr,
+      /FAIL:.*Unsafe path/,
+      `stderr should mention 'Unsafe path'; got: ${result.stderr}`,
+    );
+  });
+
+  // F-W6-TESTS-006 — schema/runtime drift on fileRef pattern.
+  // The schema's fileRef pattern (marketing.schema.json:637) currently allows
+  // leading-dot segments like `.env.json`, while the runtime _paths.mjs
+  // REF_PATTERN rejects them. We pin that the SYSTEM (whichever layer
+  // catches it) rejects this input so when contract harmonizes the two
+  // patterns, this test continues to pass with a clearer error path.
+  it("rejects an index ref with a leading-dot segment (system-level, schema OR runtime)", () => {
+    const { tempRoot, validateScript } = makeTempMarketingTree("dotfile-ref");
+    cleanup.push(tempRoot);
+
+    const indexPath = join(tempRoot, "marketing/data/marketing.index.json");
+    const index = JSON.parse(readFileSync(indexPath, "utf-8"));
+    // Inject a leading-dot ref into tools[]. Whether the schema or the
+    // runtime assertSafeRef catches it is acceptable — what matters is that
+    // the system rejects it (cross-domain invariant pin).
+    index.tools.push({ ref: ".env.json" });
+    writeFileSync(indexPath, JSON.stringify(index, null, 2), "utf-8");
+
+    const result = runValidate(validateScript, tempRoot);
+    assert.equal(
+      result.status,
+      1,
+      `validate should exit 1 on a leading-dot ref; got ${result.status}.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`,
+    );
+    // Match either error path: schema pattern violation OR runtime
+    // assertSafeRef rejection. When contract harmonizes the two patterns,
+    // one of these will be the surviving path.
+    assert.match(
+      result.stderr,
+      /Unsafe ref|pattern|\.env\.json/,
+      `stderr should reject the leading-dot ref by some path; got: ${result.stderr}`,
     );
   });
 });

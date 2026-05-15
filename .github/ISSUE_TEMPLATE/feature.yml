@@ -1,0 +1,54 @@
+name: Feature request
+description: Propose a new claim, schema field, script, or workflow capability.
+title: "[feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests are most useful when they describe the problem before
+        the solution. If you're proposing a new claim or schema field, include
+        what evidence would back it and what would falsify it.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is hard, missing, or wrong today? Be concrete.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: |
+        What would change. If it's a script or schema change, sketch the shape
+        (sample input, sample output, error message). If it's a new claim,
+        describe the evidence it would cite.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What else did you think about, and why is the proposal better?
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and falsifiability
+      description: |
+        - Does this add a claim? If so, what observation would prove it false?
+        - Does this change a contract? If so, what currently-passing case
+          would break?
+      placeholder: |
+        - New claim: yes / no
+        - Falsified by: ...
+        - Breaking: yes / no
+    validations:
+      required: false

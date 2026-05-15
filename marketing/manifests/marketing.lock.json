@@ -21,9 +21,9 @@
       "sha256": "9137efb54803bab72c54f07bd3844e45d14ba5907e8533ae6ab1ee61d035630e"
     },
     {
-      "bytes": 9453,
+      "bytes": 11547,
       "path": "marketing/data/tools/zip-meta-map.json",
-      "sha256": "5386261f32c7d3bc22cf178482706dc9ba7ae5013fe2c9a833b8547440ee6050"
+      "sha256": "15af19dbdc8278940697d188812541962c939da686407cd8fe677967aa4c864d"
     },
     {
       "bytes": 48,
@@ -31,9 +31,9 @@
       "sha256": "68cc21608704da4e28ff5a6a1ad76b4104868b91d711c1212be4af48aa9684f9"
     },
     {
-      "bytes": 19350,
+      "bytes": 35105,
       "path": "marketing/schema/marketing.schema.json",
-      "sha256": "d3bb6ce0ea7bbfe2ab6e2457a0c9fd4f2f0990342afc0deadb9aa2be49e47120"
+      "sha256": "851bce624d670610f430418167b7d2a27dcef0f3d7d5d3742c610fab5fbff007"
     }
   ],
   "generator": "gen-lock.mjs",

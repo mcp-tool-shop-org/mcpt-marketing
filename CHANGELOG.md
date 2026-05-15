@@ -11,7 +11,7 @@ Dogfood swarm wave 2 (2026-05-15) landed cross-cutting hardening.
 
 ### Added
 
-- 41 new test cases under `test/` (5 → 46 total): `test/gen-lock.test.mjs` (determinism + lockfile drift, 7 tests), `test/validate.test.mjs` (schema + invariant negative paths, 10 tests), `test/hash-file.test.mjs` (hashing utility, 4 tests), `test/_paths.test.mjs` (path-traversal guards, 20 tests).
+- 41 new test cases under `test/` (tests grew from 5 to 46): four new suites — `test/gen-lock.test.mjs` (determinism + lockfile drift), `test/validate.test.mjs` (schema + invariant negative paths), `test/hash-file.test.mjs` (hashing utility), `test/_paths.test.mjs` (path-traversal guards). See README Testing section for the current per-suite breakdown.
 - CI: Dependabot config (`.github/dependabot.yml`) for automated dependency updates.
 - CI: CodeQL workflow (`.github/workflows/codeql.yml`) for code scanning on every push and PR.
 - CI: minimal-permissions block on GitHub Actions workflows.
