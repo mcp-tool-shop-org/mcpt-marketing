@@ -48,7 +48,7 @@
 
 ## D. Shipping Hygiene
 
-- [ ] `[all]` `verify` umbrella script (validate + lock:check + tests) — **planned for v1.1.** Today the equivalent is the explicit `npm run validate && npm run lock:check && npm test` chain that CI runs.
+- [x] `[all]` `verify` umbrella script — `npm run verify` runs `fmt:check && validate && lock:check && test` (added 2026-05-15)
 - [x] `[all]` Version in manifest matches git tag (2026-02-27)
 - [x] `[all]` Dependency scanning runs in CI — CodeQL workflow added in dogfood swarm wave 2 (2026-05-15)
 - [x] `[all]` Automated dependency update mechanism exists — Dependabot config added in dogfood swarm wave 2 (2026-05-15)

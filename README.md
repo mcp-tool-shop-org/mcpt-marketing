@@ -1,5 +1,10 @@
 # mcpt-marketing
 
+[![CI](https://github.com/mcp-tool-shop/mcpt-marketing/actions/workflows/ci.yml/badge.svg)](https://github.com/mcp-tool-shop/mcpt-marketing/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/mcp-tool-shop/mcpt-marketing/actions/workflows/codeql.yml/badge.svg)](https://github.com/mcp-tool-shop/mcpt-marketing/actions/workflows/codeql.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node ≥20](https://img.shields.io/badge/node-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+
 Deterministic marketing infrastructure for MCPT tools: **falsifiable claims**, **hash-verified evidence**, and **channel-ready messages** that stay traceable as the product evolves.
 
 This repo defines **MarketIR** — a small, versioned "marketing intermediate representation" designed to be consumed by generators and the public site ([mcptoolshop.com](https://mcptoolshop.com)) without turning marketing into a manual, fragile process.
@@ -322,3 +327,7 @@ The full data-scope table (data touched, data NOT touched, permissions, network,
 ## License
 
 MIT (see [LICENSE](LICENSE)).
+
+---
+
+<p align="center">Built by <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a></p>

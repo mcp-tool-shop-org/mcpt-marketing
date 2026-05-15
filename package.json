@@ -25,7 +25,8 @@
     "new-tool": "node marketing/scripts/new-tool.mjs",
     "graduation": "node marketing/scripts/graduation-report.mjs",
     "fmt": "prettier --write .",
-    "fmt:check": "prettier --check ."
+    "fmt:check": "prettier --check .",
+    "verify": "npm run fmt:check && npm run validate && npm run lock:check && npm test"
   },
   "devDependencies": {
     "ajv": "^8.17.0",
