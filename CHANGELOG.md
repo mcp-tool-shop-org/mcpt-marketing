@@ -17,6 +17,9 @@ Dogfood swarm wave 2 (2026-05-15) landed cross-cutting hardening.
 - CI: minimal-permissions block on GitHub Actions workflows.
 - Repo ownership: `.github/CODEOWNERS`.
 - Scripts: `marketing/scripts/_paths.mjs` shared-paths module (single source of truth for repo path resolution across scripts).
+- Scripts: `marketing/scripts/new-tool.mjs` — scaffold script for adding new tool entries (`npm run new-tool -- <id>`).
+- Scripts: `marketing/scripts/graduation-report.mjs` — overdue aspirational claim report (`npm run graduation`).
+- Examples: `examples/consume.mjs` — reference consumer demonstrating how to fetch, verify, and walk the marketing IR.
 - Docs: top-level README Testing section.
 
 ### Changed

@@ -139,15 +139,18 @@ npm test
 
 One-line examples for every script in `package.json`:
 
-| Command                                     | What it does                                                                                                                                                                 |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run validate`                          | Validate the entire dataset against the schema and structural invariants. No args. Exits non-zero on any failure.                                                            |
-| `npm run lock`                              | Regenerate `marketing/manifests/marketing.lock.json` in place from current data. No args.                                                                                    |
-| `npm run lock:check`                        | Regenerate the lockfile in CI mode and fail if it differs from what's committed. No args. Used by CI.                                                                        |
-| `npm test`                                  | Run the full test suite via the Node built-in test runner.                                                                                                                   |
-| `npm run fmt:check`                         | Verify Prettier formatting across the repo. Exits non-zero if anything would be reformatted.                                                                                 |
-| `npm run fmt`                               | Apply Prettier formatting in place.                                                                                                                                          |
-| `npm run hash -- marketing/evidence/<file>` | Print the sha256 + bytes of one file. Use this when registering a new evidence artifact in `evidence.manifest.json`. The `--` is required so npm forwards the path argument. |
+| Command                                     | What it does                                                                                                                                                                                   |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run validate`                          | Validate the entire dataset against the schema and structural invariants. No args. Exits non-zero on any failure.                                                                              |
+| `npm run lock`                              | Regenerate `marketing/manifests/marketing.lock.json` in place from current data. No args.                                                                                                      |
+| `npm run lock:check`                        | Regenerate the lockfile in CI mode and fail if it differs from what's committed. No args. Used by CI.                                                                                          |
+| `npm test`                                  | Run the full test suite via the Node built-in test runner.                                                                                                                                     |
+| `npm run fmt:check`                         | Verify Prettier formatting across the repo. Exits non-zero if anything would be reformatted.                                                                                                   |
+| `npm run fmt`                               | Apply Prettier formatting in place.                                                                                                                                                            |
+| `npm run hash -- marketing/evidence/<file>` | Print the sha256 + bytes of one file. Use this when registering a new evidence artifact in `evidence.manifest.json`. The `--` is required so npm forwards the path argument.                   |
+| `npm run new-tool -- <id>`                  | Scaffold a new tool entry under `marketing/data/tools/`. Generates the boilerplate JSON file and reminds you to add the index entry. The `--` is required so npm forwards the id argument.     |
+| `npm run graduation`                        | Report aspirational claim graduation status (overdue / due this month / on track). Use this to see which aspirational claims are nearing or past their `graduationTarget` date. No args.       |
+| `node examples/consume.mjs`                 | Reference consumer that walks the lockfile, verifies every hash, and prints tool summaries. Pass `--json` for machine-readable output. Mirrors what the public site bridge does at build time. |
 
 ---
 
@@ -208,7 +211,7 @@ Consumers should resolve files through the lockfile rather than hard-coding path
 3. For each entry in the lockfile, fetch the referenced file (e.g., from `https://raw.githubusercontent.com/mcp-tool-shop/mcpt-marketing/<tag>/<path>`) and verify its sha256 matches the lockfile entry.
 4. Abort the build on any hash mismatch — the data is no longer self-consistent.
 
-The site bridge (`fetch-marketir.mjs`) is the reference implementation of this recipe.
+The site bridge (`fetch-marketir.mjs`) is the reference implementation of this recipe. See `examples/consume.mjs` for a runnable reference consumer that demonstrates the lockfile-first walk, sha256 verification, and tool summarization end-to-end without leaving this repo.
 
 ### Aliases and deprecation
 

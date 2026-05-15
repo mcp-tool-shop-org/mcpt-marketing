@@ -70,6 +70,9 @@ Humans only edit files in `marketing/data/**` and `marketing/manifests/evidence.
 | `marketing/scripts/gen-lock.mjs`             | The lockfile generator. Deterministic — same inputs, byte-identical output.                                                        |
 | `marketing/scripts/hash-file.mjs`            | Single-file hash utility. Used when registering new evidence.                                                                      |
 | `marketing/scripts/_paths.mjs`               | Shared module for path resolution + safety guards (`assertSafeRef`, `assertSafePath`).                                             |
+| `marketing/scripts/new-tool.mjs`             | Scaffold script. Generates a boilerplate tool record under `marketing/data/tools/` so new tools start from a known-valid shape.    |
+| `marketing/scripts/graduation-report.mjs`    | Aspirational claim graduation report. Lists claims by `graduationTarget` (overdue / due this month / on track).                    |
+| `examples/consume.mjs`                       | Reference consumer. Walks the lockfile, verifies every hash, and prints tool summaries. Mirrors what the site bridge does.         |
 
 ---
 
@@ -142,6 +145,8 @@ The architecture is intentionally minimal. When new requirements arrive, these a
 - **Aliases** (planned) — for cleaner consumer migration after a rename. Would land as an additive `aliases` field on entity records.
 - **Deprecation metadata** (planned) — when a schema field is deprecated, an explicit `deprecatedSince` field would let consumers warn their own users with version context. Currently, deprecation lives only in the schema's `description` text.
 - **`x-*` extension fields** (considering) — for consumer-specific metadata that should not pollute the canonical schema. Mirrors the JSON Schema convention.
+
+For consumers building their own ingestion pipeline, **`examples/consume.mjs` is the canonical reference consumer**. It demonstrates the lockfile-first walk + sha256 verification end-to-end and is the recommended starting point before re-implementing the recipe in another stack.
 
 See [ROADMAP.md](ROADMAP.md) for the full set.
 

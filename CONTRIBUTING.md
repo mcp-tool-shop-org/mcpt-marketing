@@ -39,8 +39,8 @@ For one-line examples of every script, see the **Scripts reference** section in 
 
 ## Adding a new tool
 
-1. Create `marketing/data/tools/<tool-id>.json` (e.g., `marketing/data/tools/foo-bar.json`).
-2. Use the existing `zip-meta-map.json` as a structural reference. Required top-level fields: `schemaVersion`, `id`, `name`, `positioning`, `audienceRefs`, `claims`, `messages`, `press`, `targeting`.
+1. Run `npm run new-tool -- <tool-id>` to scaffold the boilerplate. Then edit the file, claim by claim. Run `npm run validate` after each meaningful change.
+2. Required top-level fields: `schemaVersion`, `id`, `name`, `positioning`, `audienceRefs`, `claims`, `messages`, `press`, `targeting`.
 3. The tool's `id` must follow the namespace pattern `tool.<slug>` (see README's "IDs are stable and permanent" section).
 4. Add a `tools` entry referencing the new file in `marketing/data/marketing.index.json`. Files not reachable from the index are rejected as orphans by the validator.
 5. Run `npm run lock` to regenerate the lockfile so the new tool is pinned.
