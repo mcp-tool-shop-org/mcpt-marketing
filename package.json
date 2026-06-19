@@ -29,8 +29,8 @@
     "verify": "npm run fmt:check && npm run validate && npm run lock:check && npm test"
   },
   "devDependencies": {
-    "ajv": "^8.17.0",
+    "ajv": "^8.20.0",
     "ajv-formats": "^3.0.0",
-    "prettier": "^3.4.0"
+    "prettier": "^3.8.4"
   }
 }
